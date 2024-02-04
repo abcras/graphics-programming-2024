@@ -4,6 +4,7 @@
 #include <ituGL/geometry/VertexArrayObject.h>
 #include <ituGL/geometry/VertexBufferObject.h>
 #include <ituGL/geometry/VertexAttribute.h>
+#include <ituGL/geometry/ElementBufferObject.h>
 
 int buildShaderProgram();
 void processInput(GLFWwindow* window);
@@ -47,13 +48,19 @@ int main()
          0.5f, -0.5f, 0.0f, // down right
          0.5f,  0.5f, 0.0f,  // top right
 
-         -0.5f, -0.5f, 0.0f, // down left  
-         0.5f, 0.5f, 0.0f, // top right
+         //-0.5f, -0.5f, 0.0f, // down left  
+         //0.5f, 0.5f, 0.0f, // top right
          -0.5f,  0.5f, 0.0f,  // top left
+    };
+
+    unsigned int triangles[] = {
+        0, 1, 2, //first trig
+        2,0,3 //second trig
     };
 
     VertexArrayObject vao;
     VertexBufferObject vbo;
+    ElementBufferObject ebo;
 
     //unsigned int VBO, VAO;
 
@@ -63,13 +70,15 @@ int main()
     // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
     vao.Bind();
     vbo.Bind();
+    ebo.Bind();
 
     std::span temp = std::span(vertices, sizeof(vertices) / sizeof(float));
-
+    std::span temp2 = std::span(triangles, sizeof(triangles) / sizeof(unsigned int));
 
     //glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
     //vbo.AllocateData(Data::GetBytes(temp));
     vbo.AllocateData(temp);
+    ebo.AllocateData(temp2);
 
     //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     //glEnableVertexAttribArray(0);
@@ -83,7 +92,7 @@ int main()
     // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
     vao.Unbind();//glBindVertexArray(0);
-
+    ebo.Unbind();
 
     // uncomment this call to draw in wireframe polygons.
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -104,8 +113,13 @@ int main()
         // draw our first triangle
         glUseProgram(shaderProgram);
         vao.Bind(); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        //vbo.Unbind(); // no need to unbind it every time 
+        //ebo.Bind();
+
+        glDrawElements(GL_TRIANGLES, GLsizei(temp2.size()), GL_UNSIGNED_INT, 0);
+        //glDrawElements(GL_TRIANGLES, 6,GL_UNSIGNED_INT, 0);
+
+        //glDrawArrays(GL_TRIANGLES, 0, 6);
+        vao.Unbind(); // no need to unbind it every time 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
