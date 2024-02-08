@@ -1,11 +1,11 @@
 #include <ituGL/geometry/VertexArrayObject.h>
 
 #include <ituGL/geometry/VertexAttribute.h>
+
 // Create the object initially null, get object handle and generate 1 vertex array
 VertexArrayObject::VertexArrayObject() : Object(NullHandle)
 {
     Handle& handle = GetHandle();
-    glGenVertexArrays(1, &handle);
     // (todo) 00.1: Generate 1 vertex array
 }
 
@@ -13,7 +13,6 @@ VertexArrayObject::VertexArrayObject() : Object(NullHandle)
 VertexArrayObject::~VertexArrayObject()
 {
     Handle& handle = GetHandle();
-    glDeleteVertexArrays(1, &handle);
     // (todo) 00.1: Delete 1 vertex array
 }
 
@@ -21,7 +20,6 @@ VertexArrayObject::~VertexArrayObject()
 void VertexArrayObject::Bind() const
 {
     Handle handle = GetHandle();
-    glBindVertexArray(handle);
     // (todo) 00.1: Bind vertex array
 }
 
@@ -29,7 +27,6 @@ void VertexArrayObject::Bind() const
 void VertexArrayObject::Unbind()
 {
     Handle handle = NullHandle;
-    glBindVertexArray(handle);
     // (todo) 00.1: Bind null vertex array
 }
 
@@ -47,8 +44,5 @@ void VertexArrayObject::SetAttribute(GLuint location, const VertexAttribute& att
 
     // (todo) 00.1: Set the VertexAttribute pointer in that location
 
-    glVertexAttribPointer(location, components, type, normalized, stride, pointer);
-    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     // (todo) 00.1: Finally, we enable the VertexAttribute in that location
-    glEnableVertexAttribArray(0);
 }
