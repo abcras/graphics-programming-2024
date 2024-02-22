@@ -131,7 +131,7 @@ void TerrainApplication::Render()
 	m_vao.Bind();
 
 
-
+	//correct amount of triangles for exercise 01.3
 	//glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glDrawArrays(GL_TRIANGLES, 0, (m_gridX+1) * (m_gridY+1)*6);
 
