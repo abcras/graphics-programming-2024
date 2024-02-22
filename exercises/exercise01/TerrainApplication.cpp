@@ -54,6 +54,7 @@ void TerrainApplication::Initialize()
 
 	// (todo) 01.1: Create containers for the vertex position
 	std::vector<Vector3> vertices;
+	std::vector<Vector2> texCoords;
 
 	unsigned int columnCount = m_gridX + 1;
 	unsigned int rowCount = m_gridY + 1;
@@ -73,23 +74,55 @@ void TerrainApplication::Initialize()
 			vertices.push_back(Vector3(x + 0.5f * scale.x, y + 0.5f * scale.y, 0u));
 			vertices.push_back(Vector3(x + 0.5f * scale.x, y - 0.5f * scale.y, 0u));
 			vertices.push_back(Vector3(x - 0.5f * scale.x, y - 0.5f * scale.y, 0u));
+
+			texCoords.push_back(Vector2(x - 0.5f * scale.x, y - 0.5f * scale.y));
+			texCoords.push_back(Vector2(x + 0.5f * scale.x, y + 0.5f * scale.y));
 		}
 	}
 	//VertexAttribute positionAttribute(Data::Type::Float, 3);
 
+	//m_vbo.Bind();
+
+	//auto size = vertices.size() * sizeof(Vector3)+ texCoords.size() * sizeof(Vector2);
+
+	//m_vbo.AllocateData(size);
+
+	//m_vbo.AllocateData(std::span(vertices));
+	//m_vbo.AllocateData(std::span(texCoords));
+
+	//size_t positionOffset = 0u;
+
+	VertexAttribute positionAttribute(Data::Type::Float, 3);
+	VertexAttribute texCoordAttribute(Data::Type::Float, 2);
+	//VertexAttribute colorAttribute(Data::Type::Float, 3);
+	//VertexAttribute normalAttribute(Data::Type::Float, 3);
+
+	// Compute offsets inside the VERTEX STRUCT
+	size_t positionOffset = 0u;
+	size_t texCoordOffset = positionOffset + positionAttribute.GetSize();
+	//size_t colorOffset = texCoordOffset + texCoordAttribute.GetSize();
+	//size_t normalOffset = colorOffset + colorAttribute.GetSize();
+
+	// Allocate uninitialized data for the total size in the VBO
 	m_vbo.Bind();
 	m_vbo.AllocateData(std::span(vertices));
+	m_vbo.AllocateData(std::span(texCoords));
 
-	//VertexAttribute positionAttribute = new VertexAttribute(Data::Type::Float, 3, false);
-	VertexAttribute positionAttribute(Data::Type::Float, 3, false);
+	// The stride is not automatic now. Each attribute element is "sizeof(Vertex)" bytes apart from next
+	//GLsizei stride = sizeof(Vertex);
+	//GLsizei stride = sizeof(positionAttribute) + sizeof(texCoordAttribute);
 
-	size_t positionOffset = 0u;
+	// Set the pointer to the data in the VAO (notice that this offsets are for a single element)
+	m_vao.Bind();
+	m_vao.SetAttribute(0, positionAttribute, static_cast<GLint>(positionOffset), 0);
+	m_vao.SetAttribute(1, texCoordAttribute, static_cast<GLint>(texCoordOffset), 0);
+	//m_vao.SetAttribute(2, colorAttribute, static_cast<GLint>(colorOffset), stride);
+	//m_vao.SetAttribute(3, normalAttribute, static_cast<GLint>(normalOffset), stride);
 
-	GLsizei stride = sizeof(positionAttribute);
 	//auto position = VertexAttribute(Data::Data(GluShort.Float),)
 
-	m_vao.Bind();
-	m_vao.SetAttribute(0, positionAttribute, static_cast<GLint>(positionOffset), stride);
+	//m_vao.Bind();
+	//m_vao.SetAttribute(0, positionAttribute, static_cast<GLint>(positionOffset), stride);
 	//m_vao.AllocatedData
 
 	// (todo) 01.1: Initialize VAO, and VBO
@@ -103,7 +136,7 @@ void TerrainApplication::Initialize()
 	VertexBufferObject::Unbind();
 	VertexArrayObject::Unbind();
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 
 	// (todo) 01.5: Unbind EBO
