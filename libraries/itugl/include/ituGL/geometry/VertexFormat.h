@@ -26,14 +26,14 @@ public:
 
     // Adds a new attribute (for integer types)
     template<typename T>
-    void AddVertexAttribute(int components, bool normalized, VertexAttribute::Semantic semantic = VertexAttribute::Semantic::Unknown);
+    void AddVertexAttribute(int components, bool normalized);
 
     // Adds a new attribute (for floating point types)
     template<typename T>
-    void AddVertexAttribute(int components, VertexAttribute::Semantic semantic = VertexAttribute::Semantic::Unknown);
+    void AddVertexAttribute(int components);
 
     // Adds a new attribute
-    void AddVertexAttribute(Data::Type type, int components, bool normalized, VertexAttribute::Semantic semantic);
+    void AddVertexAttribute(Data::Type type, int components, bool normalized = false);
 
     // Iterator at the first attribute, can be interleaved or contiguous
     LayoutIterator LayoutBegin(int vertexCount, bool interleaved);
@@ -73,17 +73,17 @@ protected:
 };
 
 template<typename T>
-void VertexFormat::AddVertexAttribute(int components, bool normalized, VertexAttribute::Semantic semantic)
+void VertexFormat::AddVertexAttribute(int components, bool normalized)
 {
     Data::Type type = Data::GetType<T>();
     assert(type != Data::Type::Float && type != Data::Type::Double && type != Data::Type::Half);
-    AddVertexAttribute(type, components, normalized, semantic);
+    AddVertexAttribute(type, components, normalized);
 }
 
 template<typename T>
-void VertexFormat::AddVertexAttribute(int components, VertexAttribute::Semantic semantic)
+void VertexFormat::AddVertexAttribute(int components)
 {
     Data::Type type = Data::GetType<T>();
     assert(type == Data::Type::Float || type == Data::Type::Double || type == Data::Type::Half);
-    AddVertexAttribute(type, components, false, semantic);
+    AddVertexAttribute(type, components, false);
 }

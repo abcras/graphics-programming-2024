@@ -7,16 +7,11 @@
 #include <ituGL/geometry/Drawcall.h>
 #include <ituGL/shader/ShaderProgram.h>
 #include <vector>
-#include <unordered_map>
 
 // Class that groups several VBO, EBO and VAO that are part of the same object
 // Can contain several drawcalls using the data in those objects
 class Mesh
 {
-public:
-    // Maps vertex attribute semantics with their location on a shader program
-    using SemanticMap = std::unordered_map<VertexAttribute::Semantic, ShaderProgram::Location>;
-
 public:
     Mesh();
 
@@ -38,13 +33,13 @@ public:
     // Adds a new VAO, with data stored in a single VBO inside the mesh, and an iterator for the attributes
     // vboIndex is the index inside m_vbos of the VBO to be used
     template<typename TIterator>
-    unsigned int AddVertexArray(unsigned int vboIndex, TIterator& it, const TIterator itEnd, const SemanticMap& locations = SemanticMap());
+    unsigned int AddVertexArray(unsigned int vboIndex, TIterator& it, const TIterator itEnd);
 
     // (C++) 7
     // Adds a new VAO, with data stored in several VBOs inside the mesh, and an iterator for the attributes
     // vboIndices are the indices inside m_vbos of the VBOs to be used
     template<typename TIterator>
-    unsigned int AddVertexArray(std::span<unsigned int> vboIndices, TIterator& it, const TIterator itEnd, const SemanticMap& locations = SemanticMap());
+    unsigned int AddVertexArray(std::span<unsigned int> vboIndices, TIterator& it, const TIterator itEnd);
 
     // Adds a new submesh, with the index of the VAO to be bound, and the Drawcall parameters
     unsigned int AddSubmesh(unsigned int vaoIndex, const Drawcall& drawcall);
@@ -58,7 +53,7 @@ public:
     template<typename TIterator>
     unsigned int AddSubmesh(Drawcall::Primitive primitive, int firstVertex, int vertexCount,
         unsigned int vboIndex,
-        TIterator it, const TIterator itEnd, const SemanticMap& locations = SemanticMap());
+        TIterator it, const TIterator itEnd);
 
     // (C++) 7
     // Adds a new submesh, adding a new VAO that uses several VBOs, no EBO, and providing the parameters to create a Drawcall
@@ -66,7 +61,7 @@ public:
     template<typename TIterator>
     unsigned int AddSubmesh(Drawcall::Primitive primitive, int firstVertex, int vertexCount,
         std::span<unsigned int> vboIndices,
-        TIterator it, const TIterator itEnd, const SemanticMap& locations = SemanticMap());
+        TIterator it, const TIterator itEnd);
  
     // (C++) 7
     // Adds a new submesh, adding a new VAO that uses a single VBO and an EBO,and providing the parameters to create a Drawcall
@@ -75,7 +70,7 @@ public:
     template<typename TIterator>
     unsigned int AddSubmesh(Drawcall::Primitive primitive, int firstElement, int elementCount, Data::Type elementType,
         unsigned int vboIndex, unsigned int eboIndex,
-        TIterator it, const TIterator itEnd, const SemanticMap& locations = SemanticMap());
+        TIterator it, const TIterator itEnd);
 
     // (C++) 7
     // Adds a new submesh, adding a new VAO that uses several VBOs and an EBO, and providing the parameters to create a Drawcall
@@ -84,21 +79,21 @@ public:
     template<typename TIterator>
     unsigned int AddSubmesh(Drawcall::Primitive primitive, int firstElement, int elementCount, Data::Type elementType,
         std::span<unsigned int> vboIndices, unsigned int eboIndex,
-        TIterator it, const TIterator itEnd, const SemanticMap& locations = SemanticMap());
+        TIterator it, const TIterator itEnd);
 
     // (C++) 7
     // Adds a new submesh, adding a new VAO and a new VBO initialized with the vertex data
     template<typename TVertex, typename TIterator>
     unsigned int AddSubmesh(Drawcall::Primitive primitive,
         std::span<const TVertex> vertices,
-        TIterator it, const TIterator itEnd, const SemanticMap& locations = SemanticMap());
+        TIterator it, const TIterator itEnd);
 
     // (C++) 7
     // Adds a new submesh, adding a new VAO, a new VBO initialized with the vertex data and an EBO initialized with the element data
     template<typename TVertex, typename TElement, typename TIterator>
     unsigned int AddSubmesh(Drawcall::Primitive primitive,
         std::span<const TVertex> vertices, std::span<const TElement> elements,
-        TIterator it, const TIterator itEnd, const SemanticMap& locations = SemanticMap());
+        TIterator it, const TIterator itEnd);
 
     inline unsigned int GetVertexBufferCount() const { return static_cast<unsigned int>(m_vbos.size()); }
     inline const VertexBufferObject& GetVertexBuffer(unsigned int vboIndex) const { return m_vbos[vboIndex]; }
@@ -137,7 +132,7 @@ private:
     inline Submesh& GetSubmesh(unsigned int submeshIndex) { return m_submeshes[submeshIndex]; }
 
     // Set a vertex attribute in a VAO, using the specified layout, and increases the location index according to the size of the attribute
-    void SetupVertexAttribute(VertexArrayObject& vao, const VertexAttribute::Layout& attributeLayout, GLuint& location, const SemanticMap& locations);
+    void SetupVertexAttribute(VertexArrayObject& vao, const VertexAttribute::Layout& attributeLayout, GLuint& location);
 
 private:
     // All the VBOs used in this mesh
@@ -176,7 +171,7 @@ unsigned int Mesh::AddElementData(std::span<const T> elements)
 }
 
 template<typename TIterator>
-unsigned int Mesh::AddVertexArray(unsigned int vboIndex, TIterator& it, const TIterator itEnd, const SemanticMap& locations)
+unsigned int Mesh::AddVertexArray(unsigned int vboIndex, TIterator& it, const TIterator itEnd)
 {
     unsigned int vaoIndex = AddVertexArray();
 
@@ -188,7 +183,7 @@ unsigned int Mesh::AddVertexArray(unsigned int vboIndex, TIterator& it, const TI
     vbo.Bind();
     while (it != itEnd)
     {
-        SetupVertexAttribute(vao, *it, location, locations);
+        SetupVertexAttribute(vao, *it, location);
         it++;
     }
 
@@ -199,7 +194,7 @@ unsigned int Mesh::AddVertexArray(unsigned int vboIndex, TIterator& it, const TI
 }
 
 template<typename TIterator>
-unsigned int Mesh::AddVertexArray(std::span<unsigned int> vboIndices, TIterator& it, const TIterator itEnd, const SemanticMap& locations)
+unsigned int Mesh::AddVertexArray(std::span<unsigned int> vboIndices, TIterator& it, const TIterator itEnd)
 {
     unsigned int vaoIndex = AddVertexArray();
 
@@ -218,7 +213,7 @@ unsigned int Mesh::AddVertexArray(std::span<unsigned int> vboIndices, TIterator&
             vbo.Bind();
             i++;
         }
-        SetupVertexAttribute(vao, *it, location, locations);
+        SetupVertexAttribute(vao, *it, location);
         it++;
     }
 
@@ -231,27 +226,27 @@ unsigned int Mesh::AddVertexArray(std::span<unsigned int> vboIndices, TIterator&
 template<typename TIterator>
 unsigned int Mesh::AddSubmesh(Drawcall::Primitive primitive, int firstVertex, int vertexCount,
     unsigned int vboIndex,
-    TIterator it, const TIterator itEnd, const SemanticMap& locations)
+    TIterator it, const TIterator itEnd)
 {
-    unsigned int vaoIndex = AddVertexArray(vboIndex, it, itEnd, locations);
+    unsigned int vaoIndex = AddVertexArray(vboIndex, it, itEnd);
     return AddSubmesh(vaoIndex, primitive, firstVertex, vertexCount, Data::Type::None);
 }
 
 template<typename TIterator>
 unsigned int Mesh::AddSubmesh(Drawcall::Primitive primitive, int firstVertex, int vertexCount,
     std::span<unsigned int> vboIndices,
-    TIterator it, const TIterator itEnd, const SemanticMap& locations)
+    TIterator it, const TIterator itEnd)
 {
-    unsigned int vaoIndex = AddVertexArray(vboIndices, it, itEnd, locations);
+    unsigned int vaoIndex = AddVertexArray(vboIndices, it, itEnd);
     return AddSubmesh(vaoIndex, primitive, firstVertex, vertexCount, Data::Type::None);
 }
 
 template<typename TIterator>
 unsigned int Mesh::AddSubmesh(Drawcall::Primitive primitive, int firstElement, int elementCount, Data::Type elementType,
     unsigned int vboIndex, unsigned int eboIndex,
-    TIterator it, const TIterator itEnd, const SemanticMap& locations)
+    TIterator it, const TIterator itEnd)
 {
-    unsigned int vaoIndex = AddVertexArray(vboIndex, it, itEnd, locations);
+    unsigned int vaoIndex = AddVertexArray(vboIndex, it, itEnd);
 
     VertexArrayObject& vao = GetVertexArray(vaoIndex);
     vao.Bind();
@@ -268,9 +263,9 @@ unsigned int Mesh::AddSubmesh(Drawcall::Primitive primitive, int firstElement, i
 template<typename TIterator>
 unsigned int Mesh::AddSubmesh(Drawcall::Primitive primitive, int firstElement, int elementCount, Data::Type elementType,
     std::span<unsigned int> vboIndices, unsigned int eboIndex,
-    TIterator it, const TIterator itEnd, const SemanticMap& locations)
+    TIterator it, const TIterator itEnd)
 {
-    unsigned int vaoIndex = AddVertexArray(vboIndices, it, itEnd, locations);
+    unsigned int vaoIndex = AddVertexArray(vboIndices, it, itEnd);
 
     VertexArrayObject& vao = m_vaos[vaoIndex];
     vao.Bind();
@@ -287,19 +282,19 @@ unsigned int Mesh::AddSubmesh(Drawcall::Primitive primitive, int firstElement, i
 template<typename TVertex, typename TIterator>
 unsigned int Mesh::AddSubmesh(Drawcall::Primitive primitive,
     std::span<const TVertex> vertices,
-    TIterator it, const TIterator itEnd, const SemanticMap& locations)
+    TIterator it, const TIterator itEnd)
 {
     unsigned int vboIndex = AddVertexData(vertices);
-    return AddSubmesh(primitive, 0, static_cast<int>(vertices.size()), vboIndex, it, itEnd, locations);
+    return AddSubmesh(primitive, 0, static_cast<int>(vertices.size()), vboIndex, it, itEnd);
 }
 
 template<typename TVertex, typename TElement, typename TIterator>
 unsigned int Mesh::AddSubmesh(Drawcall::Primitive primitive,
     std::span<const TVertex> vertices, std::span<const TElement> elements,
-    TIterator it, const TIterator itEnd, const SemanticMap& locations)
+    TIterator it, const TIterator itEnd)
 {
     int vboIndex = AddVertexData(vertices);
     int eboIndex = AddElementData(elements);
-    return AddSubmesh(primitive, 0, static_cast<int>(elements.size()), Data::GetType<TElement>(), vboIndex, eboIndex, it, itEnd, locations);
+    return AddSubmesh(primitive, 0, static_cast<int>(elements.size()), Data::GetType<TElement>(), vboIndex, eboIndex, it, itEnd);
 }
 
