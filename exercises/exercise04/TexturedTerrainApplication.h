@@ -43,22 +43,12 @@ private:
     ShaderLoader m_fragmentShaderLoader;
 
     Mesh m_terrainPatch;
-
     std::shared_ptr<Material> m_defaultMaterial;
-    std::shared_ptr<Material> m_terrainMaterial00;
-    std::shared_ptr<Material> m_terrainMaterial10;
-    std::shared_ptr<Material> m_terrainMaterial01;
-    std::shared_ptr<Material> m_terrainMaterial11;
-    std::shared_ptr<Material> m_waterMaterial;
+
+    // (todo) 04.X: Add additional materials
+
 
     std::shared_ptr<Texture2DObject> m_defaultTexture;
-    std::shared_ptr<Texture2DObject> m_heightmapTexture00;
-    std::shared_ptr<Texture2DObject> m_heightmapTexture10;
-    std::shared_ptr<Texture2DObject> m_heightmapTexture01;
-    std::shared_ptr<Texture2DObject> m_heightmapTexture11;
-    std::shared_ptr<Texture2DObject> m_dirtTexture;
-    std::shared_ptr<Texture2DObject> m_grassTexture;
-    std::shared_ptr<Texture2DObject> m_rockTexture;
-    std::shared_ptr<Texture2DObject> m_snowTexture;
-    std::shared_ptr<Texture2DObject> m_waterTexture;
+
+    // (todo) 04.X: Add additional textures
 };
