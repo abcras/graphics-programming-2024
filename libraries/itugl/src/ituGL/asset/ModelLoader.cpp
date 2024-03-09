@@ -6,7 +6,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <iostream>
-#include <bit>
 
 ModelLoader::ModelLoader(std::shared_ptr<Material> referenceMaterial)
     : m_referenceMaterial(referenceMaterial)
