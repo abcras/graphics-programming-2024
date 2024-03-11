@@ -51,6 +51,7 @@ private:
     std::shared_ptr<Material> m_terrainMaterial01;
     std::shared_ptr<Material> m_terrainMaterial11;
 
+    std::shared_ptr<Material> m_waterMaterial;
 
     std::shared_ptr<Texture2DObject> m_defaultTexture;
 
@@ -64,5 +65,6 @@ private:
     std::shared_ptr<Texture2DObject> m_grassTexture;
     std::shared_ptr<Texture2DObject> m_rockTexture;
     std::shared_ptr<Texture2DObject> m_snowTexture;
+
     std::shared_ptr<Texture2DObject> m_waterTexture;
 };
