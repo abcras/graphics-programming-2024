@@ -186,7 +186,8 @@ std::shared_ptr<Texture2DObject> TexturedTerrainApplication::CreateHeightMap(uns
             float x = static_cast<float>(i) / (width - 1);
             float y = static_cast<float>(j) / (height - 1);
             //pixels.push_back(std::sin(0.1f * i) * 0.1f);
-            pixels[j * width + i] = std::sin(0.1f * i) * 0.1f;
+            //pixels[j * width + i] = std::sin(0.1f * i) * 0.1f;
+            pixels[j * width + i] = stb_perlin_fbm_noise3(x,y,0.f,1.9f, 0.5f, 8) * 0.5f;// 
         }
     }
 
