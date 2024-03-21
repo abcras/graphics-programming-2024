@@ -12,13 +12,14 @@
 
 FirefliesApplication::FirefliesApplication()
     : Application(1024, 1024, "Fireflies demo")
-    , m_renderMode(RenderMode::Forward)
+    , m_renderMode(RenderMode::Deferred)
     , m_renderer(GetDevice())
     , m_mouseClicked(false)
     , m_ambientColor(0.0f)
     , m_lightColor(0.0f)
     , m_lightIntensity(0.0f)
     , m_useRandomColor(false)
+    , m_attenuationVals(1.f, 10.f,0.f)
 {
 }
 
@@ -338,6 +339,7 @@ void FirefliesApplication::RenderGUI()
     ImGui::ColorEdit3("Light color", &m_lightColor[0]);
     ImGui::DragFloat("Light intensity", &m_lightIntensity, 0.05f, 0.0f, 100.0f);
     ImGui::Checkbox("Use random color", &m_useRandomColor);
+    ImGui::SliderFloat3("Attenuation", &m_attenuationVals[0], 0.f, 10.f);
 
     m_imGui.EndFrame();
 }
@@ -389,6 +391,8 @@ void FirefliesApplication::AddFirefly(glm::vec2 position2D)
     pointLight.SetPosition(position3D);
     pointLight.SetColor(m_useRandomColor ? glm::vec3(RandomColor()) : m_lightColor);
     pointLight.SetIntensity(m_lightIntensity);
+    //todo 07.1 setDistanceAttenuation
+    pointLight.SetDistanceAttenuation(glm::vec2(m_attenuationVals.x, m_attenuationVals.y));
 
     firefly.worldMatrix = glm::translate(position3D) * glm::rotate(RandomRange(-3.1416f, 3.1416f), glm::vec3(0, 1, 0)) * glm::scale(glm::vec3(0.25f));
 
