@@ -8,6 +8,12 @@ Shader "CG2024/Hatching"
         _SpecularExponent("Specular Exponent", Float) = 100.0
 
         // TODO exercise 6 - Add the required properties here
+        _Hatching0("Hatching 0", 2D)= "white" {}
+        _Hatching1("Hatching 1", 2D)= "white" {}
+        _Hatching2("Hatching 2", 2D)= "white" {}
+        _Hatching3("Hatching 3", 2D)= "white" {}
+        _Hatching4("Hatching 4", 2D)= "white" {}
+        _Hatching5("Hatching 5", 2D)= "white" {}
     }
 
     SubShader
@@ -27,23 +33,82 @@ Shader "CG2024/Hatching"
         // TODO exercise 6 - Add the required uniforms here
 
 
+        uniform vec4 _Hatching0_ST;
+        uniform sampler2D _Hatching0;
+        uniform sampler2D _Hatching1;
+        uniform sampler2D _Hatching2;
+        uniform sampler2D _Hatching3;
+        uniform sampler2D _Hatching4;
+        uniform sampler2D _Hatching5;
+
 
         // TODO exercise 6 - Compute the hatching intensity here
         float ComputeHatching(vec3 lighting, vec2 texCoords)
         {
+
             // TODO exercise 6.3 - Compute the lighting intensity from the lighting color luminance
+            float intensity = GetColorLuminance(lighting);
 
             // TODO exercise 6.3 - Clamp the intensity value between 0 and 1
+            float clampedIntensity = clamp(intensity, 0,1);
 
             // TODO exercise 6.3 - Multiply the intensity by the number of levels. This time the number of levels is fixed, 7, given by the number of textures + 1
+            float level = clampedIntensity * 7;
+            //ceil(intensity * _Levels)/_Levels;
 
             // TODO exercise 6.3 - Compute the blending factor, as the fractional part of the intensity
+            float blending = fract(clampedIntensity);
 
             // TODO exercise 6.3 - Depending on the intensity, choose up to 2 textures to sample and mix them based on the blending factor. That would be the hatching intensity
+            //float hatchingIntensity
+
+            vec4 color1 = vec4(0.f);
+            vec4 color2 = vec4(0.f);
+
+            if (1 <= level && level <= 0)
+            {
+                color1 = vec4(vec3(0.0f),1.0f);
+                color2 = texture(_Hatching5, texCoords);
+            } else
+            if (2 <= level && level < 1)
+            {
+                color1 = texture(_Hatching4, texCoords);
+                color2 = texture(_Hatching5, texCoords);
+            }else
+            if (3 <= level && level < 2)
+            {
+                color1 = texture(_Hatching3, texCoords);
+                color2 = texture(_Hatching4, texCoords);
+            }else
+            if (4 <= level && level < 3)
+            {
+                color1 = texture(_Hatching2, texCoords);
+                color2 = texture(_Hatching3, texCoords);
+            }else
+            if (5 <= level && level < 4)
+            {
+                color1 = texture(_Hatching1, texCoords);
+                color2 = texture(_Hatching2, texCoords);
+            } else
+            if (6 <= level && level < 5)
+            {
+                color1 = texture(_Hatching0, texCoords);
+                color2 = texture(_Hatching1, texCoords);
+            }else
+            if(7 <= level && level < 6)
+            {
+                color1 = texture(_Hatching0, texCoords);
+                color2 = vec4(1.f);
+            }
+            //sads
+
+            //float blendingFrac = fract(blending);
+
+            float color = mix(color1, color2, intensity).x;
 
             // TODO exercise 6.4 - Replace the previous step with 2 samples from the texture array. Mix them based on the blending factor to get the hatching intensity
 
-            return 1.0f;
+            return color;
         }
         ENDGLSL
 
@@ -87,6 +152,7 @@ Shader "CG2024/Hatching"
                 vec3 normal = normalize(v2f.normal);
 
                 vec3 albedo = texture(_AlbedoTexture, v2f.texCoords.xy).rgb;
+                albedo = albedo * texture(_Hatching1, v2f.texCoords.xy).rgb;
                 albedo *= _Albedo.rgb;
 
                 // Like in the cel-shading exercise, we replace the albedo here with 1.0f
@@ -144,6 +210,7 @@ Shader "CG2024/Hatching"
                 vec3 normal = normalize(v2f.normal);
 
                 vec3 albedo = texture(_AlbedoTexture, v2f.texCoords.xy).rgb;
+                albedo = albedo * texture(_Hatching1, v2f.texCoords.xy).rgb;
                 albedo *= _Albedo.rgb;
 
                 // Like in the cel-shading exercise, we replace the albedo here with 1.0f. Notice that ambient reflectance is still 0.0f
