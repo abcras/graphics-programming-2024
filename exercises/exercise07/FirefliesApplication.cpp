@@ -12,7 +12,7 @@
 
 FirefliesApplication::FirefliesApplication()
     : Application(1024, 1024, "Fireflies demo")
-    , m_renderMode(RenderMode::Forward)
+    , m_renderMode(RenderMode::Deferred)
     , m_renderer(GetDevice())
     , m_mouseClicked(false)
     , m_ambientColor(0.0f)
@@ -374,7 +374,7 @@ void FirefliesApplication::UpdateFireflies()
         firefly.pointLight.SetPosition(worldMatrix[3]);
 
         m_renderer.AddModel(m_fireflyModel, firefly.worldMatrix);
-        m_renderer.AddLight(&firefly.pointLight);
+        m_renderer.AddLight(firefly.pointLight);
     }
 }
 
@@ -389,6 +389,7 @@ void FirefliesApplication::AddFirefly(glm::vec2 position2D)
     pointLight.SetPosition(position3D);
     pointLight.SetColor(m_useRandomColor ? glm::vec3(RandomColor()) : m_lightColor);
     pointLight.SetIntensity(m_lightIntensity);
+    pointLight.SetDistanceAttenuation(glm::vec2(1.0f, 2.0f));
 
     firefly.worldMatrix = glm::translate(position3D) * glm::rotate(RandomRange(-3.1416f, 3.1416f), glm::vec3(0, 1, 0)) * glm::scale(glm::vec3(0.25f));
 
