@@ -8,7 +8,7 @@ class Drawcall
 public:
     enum class Primitive : GLenum
     {
-        Invalid = ~0U,
+        Invalid = GL_NONE,
         Points = GL_POINTS,
         Lines = GL_LINES,
         LineStrip = GL_LINE_STRIP,
