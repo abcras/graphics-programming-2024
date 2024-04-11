@@ -98,7 +98,7 @@ void SceneViewerApplication::InitializeLights()
     // Create a directional light and add it to the scene
     std::shared_ptr<DirectionalLight> directionalLight = std::make_shared<DirectionalLight>();
     directionalLight->SetDirection(glm::vec3(-0.3f, -1.0f, -0.3f)); // It will be normalized inside the function
-    directionalLight->SetIntensity(1.0f);
+    directionalLight->SetIntensity(3.0f);
     m_scene.AddSceneNode(std::make_shared<SceneLight>("directional light", directionalLight));
 
     // Create a point light and add it to the scene
@@ -205,14 +205,14 @@ void SceneViewerApplication::InitializeModels()
     std::shared_ptr<Model> chestModel = loader.LoadShared("models/treasure_chest/treasure_chest.obj");
     m_scene.AddSceneNode(std::make_shared<SceneModel>("treasure chest", chestModel));
 
-    //std::shared_ptr<Model> cameraModel = loader.LoadShared("models/camera/camera.obj");
-    //m_scene.AddSceneNode(std::make_shared<SceneModel>("camera model", cameraModel));
+    std::shared_ptr<Model> cameraModel = loader.LoadShared("models/camera/camera.obj");
+    m_scene.AddSceneNode(std::make_shared<SceneModel>("camera model", cameraModel));
 
-    //std::shared_ptr<Model> teaSetModel = loader.LoadShared("models/tea_set/tea_set.obj");
-    //m_scene.AddSceneNode(std::make_shared<SceneModel>("tea set", teaSetModel));
+    std::shared_ptr<Model> teaSetModel = loader.LoadShared("models/tea_set/tea_set.obj");
+    m_scene.AddSceneNode(std::make_shared<SceneModel>("tea set", teaSetModel));
 
-    //std::shared_ptr<Model> clockModel = loader.LoadShared("models/alarm_clock/alarm_clock.obj");
-    //m_scene.AddSceneNode(std::make_shared<SceneModel>("alarm clock", clockModel));
+    std::shared_ptr<Model> clockModel = loader.LoadShared("models/alarm_clock/alarm_clock.obj");
+    m_scene.AddSceneNode(std::make_shared<SceneModel>("alarm clock", clockModel));
 }
 
 void SceneViewerApplication::InitializeRenderer()
