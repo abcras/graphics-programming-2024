@@ -324,6 +324,22 @@ void PostFXSceneViewerApplication::InitializeRenderer()
     // Skybox pass
     m_renderer.AddRenderPass(std::make_unique<SkyboxRenderPass>(m_skyboxTexture));
 
+
+
+    //render ice
+    m_frozenMaterial->SetDepthTestFunction(Material::TestFunction::Equal);
+
+    std::unique_ptr<GBufferRenderPass> gbufferRenderPass(std::make_unique<GBufferRenderPass>(width, height));
+
+    // Set the g-buffer textures as properties of the deferred material
+    m_frozenMaterial->SetUniformValue("DepthTexture", gbufferRenderPass->GetDepthTexture());
+    m_frozenMaterial->SetUniformValue("AlbedoTexture", gbufferRenderPass->GetAlbedoTexture());
+    m_frozenMaterial->SetUniformValue("NormalTexture", gbufferRenderPass->GetNormalTexture());
+    m_frozenMaterial->SetUniformValue("OthersTexture", gbufferRenderPass->GetOthersTexture());
+    //m_frozenMaterial->
+    //m_frozenMaterial->
+    m_renderer.AddRenderPass(std::make_unique<DeferredRenderPass>(m_frozenMaterial, m_sceneFramebuffer));
+
     // Create a copy pass from m_sceneTexture to the first temporary texture
     std::shared_ptr<Material> copyMaterial = CreatePostFXMaterial("shaders/postfx/copy.frag", m_sceneTexture);
     m_renderer.AddRenderPass(std::make_unique<PostFXRenderPass>(copyMaterial, m_tempFramebuffers[0]));

@@ -196,6 +196,7 @@ std::span<const Renderer::DrawcallInfo> Renderer::GetDrawcalls(unsigned int coll
     return m_drawcallCollections[collectionIndex];
 }
 
+//TODO make a version that only goes to a specific drawcall
 void Renderer::AddModel(const Model& model, const glm::mat4& worldMatrix)
 {
     unsigned int worldMatrixIndex = static_cast<unsigned int>(m_worldMatrices.size());

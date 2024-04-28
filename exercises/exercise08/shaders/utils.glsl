@@ -19,6 +19,13 @@ vec3 GetDirection(vec3 fromPosition, vec3 toPosition)
 	return normalize(toPosition - fromPosition);
 }
 
+
+float GetDistance(vec3 v1, vec3 v2)
+{
+	return length(v1 - v2);
+}
+
+
 // Returns the dot product, clamped only to positive values
 float ClampedDot(vec3 v1, vec3 v2)
 {
