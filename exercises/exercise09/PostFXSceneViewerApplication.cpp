@@ -233,7 +233,7 @@ void PostFXSceneViewerApplication::InitializeMaterials()
         fragmentShaderPaths.push_back("shaders/utils.glsl");
         fragmentShaderPaths.push_back("shaders/lambert-ggx.glsl");
         fragmentShaderPaths.push_back("shaders/lighting.glsl");
-        fragmentShaderPaths.push_back("shaders/renderer/forward.frag");
+        fragmentShaderPaths.push_back("shaders/renderer/ice.frag");
         Shader fragmentShader = ShaderLoader(Shader::FragmentShader).Load(fragmentShaderPaths);
 
         std::shared_ptr<ShaderProgram> shaderProgramPtr = std::make_shared<ShaderProgram>();
@@ -274,6 +274,11 @@ void PostFXSceneViewerApplication::InitializeMaterials()
         m_forwardMaterial->SetBlendEquation(Material::BlendEquation::Add);
         m_forwardMaterial->SetBlendParams(Material::BlendParam::SourceAlpha, Material::BlendParam::OneMinusSourceAlpha);
         m_forwardMaterial->SetDepthWrite(false);
+
+        m_frozenMaterial = std::make_shared<Material>(shaderProgramPtr, filteredUniforms);
+        m_frozenMaterial->SetBlendEquation(Material::BlendEquation::Add);
+        m_frozenMaterial->SetBlendParams(Material::BlendParam::SourceAlpha, Material::BlendParam::OneMinusSourceAlpha);
+        m_frozenMaterial->SetDepthWrite(false);
     }
 }
 
@@ -281,17 +286,33 @@ void PostFXSceneViewerApplication::InitializeModels()
 {
     m_skyboxTexture = TextureCubemapLoader::LoadTextureShared("models/skybox/yoga_studio.hdr", TextureObject::FormatRGB, TextureObject::InternalFormatRGB16F);
 
+    //m_skyboxTexture = TextureCubemapLoader::LoadTextureShared("models/skybox/yoga_studio.hdr", TextureObject::FormatRGB, TextureObject::InternalFormatRGB16F);
+
+    m_frostTexture = Texture2DLoader::LoadTextureShared("models/ice/ground_0031_color_1k.jpg", TextureObject::FormatRGB, TextureObject::InternalFormatRGB16F);
+
+    m_frostCombinedTexture = Texture2DLoader::LoadTextureShared("models/ice/ground_0031_ao_rough_sub.png", TextureObject::FormatRGB, TextureObject::InternalFormatRGB16F);
+
     m_skyboxTexture->Bind();
     float maxLod;
     m_skyboxTexture->GetParameter(TextureObject::ParameterFloat::MaxLod, maxLod);
     TextureCubemapObject::Unbind();
-
+    
     // Set the environment texture on the deferred material
     m_deferredMaterial->SetUniformValue("EnvironmentTexture", m_skyboxTexture);
     m_deferredMaterial->SetUniformValue("EnvironmentMaxLod", maxLod);
 
+
     m_forwardMaterial->SetUniformValue("EnvironmentTexture", m_skyboxTexture);
     m_forwardMaterial->SetUniformValue("EnvironmentMaxLod", maxLod);
+
+
+    m_frozenMaterial->SetUniformValue("IceColorTexture", m_frostTexture);
+    m_frozenMaterial->SetUniformValue("IceCombinedTexture", m_frostCombinedTexture);
+
+    m_frozenMaterial->SetUniformValue("EnvironmentTexture", m_skyboxTexture);
+    m_frozenMaterial->SetUniformValue("EnvironmentMaxLod", maxLod);
+
+    //m_forwardMaterial->SetUniformValue("IceColorTexture", m_frostTexture);
 
     // Configure loader
     ModelLoader loader(m_gbufferMaterial);
@@ -320,7 +341,9 @@ void PostFXSceneViewerApplication::InitializeModels()
     m_scene.AddSceneNode(std::make_shared<SceneModel>("cannon", cannonModel));
 
     // Configure loader
-    ModelLoader forwardLoader(m_forwardMaterial);
+    //ModelLoader forwardLoader(m_forwardMaterial);
+    ModelLoader forwardLoader(m_frozenMaterial);
+
 
     // Create a new material copy for each submaterial
     forwardLoader.SetCreateMaterials(true);
@@ -344,13 +367,18 @@ void PostFXSceneViewerApplication::InitializeModels()
     int sphereIndex = 0;
     glm::vec2 sphereDistance(3.0f, 3.0f);
     std::shared_ptr<Model> sphereModel = forwardLoader.LoadShared("models/sphere/sphere.obj");
-    for (int j = -2; j <= 2; ++j)
+    std::shared_ptr<Model> forwardCannonModel = forwardLoader.LoadShared("models/cannon/cannon.obj");
+
+
+
+
+    for (int j = 0; j <= 1; ++j)
     {
-        for (int i = -2; i <= 2; ++i)
+        for (int i = 0; i <= 1; ++i)
         {
             std::string name("sphere ");
             name += std::to_string(sphereIndex++);
-            std::shared_ptr<SceneModel> sceneModel = std::make_shared<SceneModel>(name, sphereModel);
+            std::shared_ptr<SceneModel> sceneModel = std::make_shared<SceneModel>(name, forwardCannonModel);
             sceneModel->GetTransform()->SetTranslation(glm::vec3(i * sphereDistance.x, 0.0f, j * sphereDistance.y));
             m_scene.AddSceneNode(sceneModel);
         }
@@ -435,18 +463,19 @@ void PostFXSceneViewerApplication::InitializeRenderer()
 
 
     //render ice
-    m_frozenMaterial->SetDepthTestFunction(Material::TestFunction::Equal);
+    //m_frozenMaterial->SetDepthTestFunction(Material::TestFunction::Equal);
 
-    std::unique_ptr<GBufferRenderPass> gbufferRenderPass(std::make_unique<GBufferRenderPass>(width, height));
+    //std::unique_ptr<GBufferRenderPass> gbufferRenderPass(std::make_unique<GBufferRenderPass>(width, height));
 
-    // Set the g-buffer textures as properties of the deferred material
-    m_frozenMaterial->SetUniformValue("DepthTexture", gbufferRenderPass->GetDepthTexture());
-    m_frozenMaterial->SetUniformValue("AlbedoTexture", gbufferRenderPass->GetAlbedoTexture());
-    m_frozenMaterial->SetUniformValue("NormalTexture", gbufferRenderPass->GetNormalTexture());
-    m_frozenMaterial->SetUniformValue("OthersTexture", gbufferRenderPass->GetOthersTexture());
+    //// Set the g-buffer textures as properties of the deferred material
+    //m_frozenMaterial->SetUniformValue("DepthTexture", gbufferRenderPass->GetDepthTexture());
+    //m_frozenMaterial->SetUniformValue("AlbedoTexture", gbufferRenderPass->GetAlbedoTexture());
+    //m_frozenMaterial->SetUniformValue("NormalTexture", gbufferRenderPass->GetNormalTexture());
+    //m_frozenMaterial->SetUniformValue("OthersTexture", gbufferRenderPass->GetOthersTexture());
     //m_frozenMaterial->
     //m_frozenMaterial->
-    m_renderer.AddRenderPass(std::make_unique<DeferredRenderPass>(m_frozenMaterial, m_sceneFramebuffer));
+    //m_renderer.AddRenderPass(std::make_unique<DeferredRenderPass>(m_frozenMaterial, m_sceneFramebuffer));
+
     m_renderer.AddRenderPass(std::make_unique<ForwardRenderPass>(m_transparentCollection));
 
     // Create a copy pass from m_sceneTexture to the first temporary texture

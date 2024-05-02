@@ -66,6 +66,9 @@ private:
 
     std::shared_ptr<Material> m_frozenMaterial;
 
+    std::shared_ptr<Texture2DObject> m_frostCombinedTexture;
+    std::shared_ptr<Texture2DObject> m_frostTexture;
+
     // Framebuffers
     std::shared_ptr<FramebufferObject> m_sceneFramebuffer;
     std::shared_ptr<Texture2DObject> m_depthTexture;

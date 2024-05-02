@@ -14,6 +14,9 @@ uniform sampler2D ColorTexture;
 uniform sampler2D NormalTexture;
 uniform sampler2D SpecularTexture;
 
+uniform sampler2D IceColorTexture;
+
+
 uniform vec3 CameraPosition;
 
 void main()
@@ -21,6 +24,8 @@ void main()
 	SurfaceData data;
 	data.normal = SampleNormalMap(NormalTexture, TexCoord, normalize(WorldNormal), normalize(WorldTangent), normalize(WorldBitangent));
 	vec4 colorTexture = texture(ColorTexture, TexCoord);
+	//vec4 colorTexture = texture(IceColorTexture, TexCoord);
+
 	data.albedo = Color * colorTexture.rgb;
 	vec3 arm = texture(SpecularTexture, TexCoord).rgb;
 	data.ambientOcclusion = arm.x;
