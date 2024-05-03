@@ -14,6 +14,8 @@ uniform sampler2D ColorTexture;
 uniform sampler2D NormalTexture;
 uniform sampler2D SpecularTexture;
 
+uniform float Time;
+
 uniform sampler2D IceColorTexture;
 uniform sampler2D IceCombinedTexture;
 //R is subsurface
@@ -40,5 +42,6 @@ void main()
 	vec3 position = WorldPosition;
 	vec3 viewDir = GetDirection(position, CameraPosition);
 	vec3 color = ComputeLighting(position, data, viewDir, true);
+	//color.b = color.b + Time;
 	FragColor = vec4(color.rgb, colorTexture.a);
 }
