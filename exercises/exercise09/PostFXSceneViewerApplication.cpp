@@ -371,7 +371,13 @@ void PostFXSceneViewerApplication::InitializeModels()
 	int sphereIndex = 0;
 	glm::vec2 sphereDistance(3.0f, 3.0f);
 	std::shared_ptr<Model> sphereModel = forwardLoader.LoadShared("models/sphere/sphere.obj");
-	std::shared_ptr<Model> forwardCannonModel = forwardLoader.LoadShared("models/cannon/cannon.obj");
+
+	//std::shared_ptr<Model> forwardCannonModel = forwardLoader.LoadShared("models/cannon/cannon.obj");
+	//std::shared_ptr<Model> chestModel = forwardLoader.LoadShared("models/treasure_chest/treasure_chest.obj");
+	//std::shared_ptr<Model> alarmModel = forwardLoader.LoadShared("models/alarm_clock/alarm_clock.obj");
+	//std::shared_ptr<Model> libertyModel = forwardLoader.LoadShared("models/LibertyStatue/LibertyStatue.obj");
+
+
 
 
 
@@ -380,9 +386,9 @@ void PostFXSceneViewerApplication::InitializeModels()
 	{
 		for (int i = 0; i <= 1; ++i)
 		{
-			std::string name("sphere ");
+			std::string name("alarm ");
 			name += std::to_string(sphereIndex++);
-			std::shared_ptr<SceneModel> sceneModel = std::make_shared<SceneModel>(name, forwardCannonModel);
+			std::shared_ptr<SceneModel> sceneModel = std::make_shared<SceneModel>(name, sphereModel);
 			sceneModel->GetTransform()->SetTranslation(glm::vec3(i * sphereDistance.x, 0.0f, j * sphereDistance.y));
 			m_scene.AddSceneNode(sceneModel);
 		}
