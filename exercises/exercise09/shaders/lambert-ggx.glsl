@@ -9,6 +9,7 @@ struct SurfaceData
 	float ambientOcclusion;
 	float roughness;
 	float metalness;
+	float subsurface;
 };
 
 // Constant value for PI
@@ -114,6 +115,21 @@ vec3 ComputeDiffuseLighting(SurfaceData data, vec3 lightDir)
 {
 	// Implement the lambertian equation for diffuse
 	return GetAlbedo(data) * invPi;
+}
+
+vec3 ComputeSpecularLightingWithSS(SurfaceData data, vec3 lightDir, vec3 viewDir)
+{
+	// Implement the Cook-Torrance equation using the D (distribution) and G (geometry) terms
+	vec3 halfDir = normalize(lightDir + viewDir);
+
+	float D = DistributionGGX(data.normal, halfDir, data.roughness);
+	float G = GeometrySmith(data.normal, lightDir, viewDir, data.roughness);
+
+	//Use SpecialClampedDot which uses the SubSurface value
+	float cosI = SpecialClampedDot(data.normal, lightDir, data.subsurface);
+	float cosO = SpecialClampedDot(data.normal, viewDir, data.subsurface);
+
+	return vec3((D * G) / (4.0f * cosO * cosI + 0.00001f));
 }
 
 vec3 ComputeSpecularLighting(SurfaceData data, vec3 lightDir, vec3 viewDir)

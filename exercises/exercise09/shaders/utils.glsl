@@ -25,6 +25,11 @@ float ClampedDot(vec3 v1, vec3 v2)
 	return max(dot(v1, v2), 0);
 }
 
+float SpecialClampedDot(vec3 v1, vec3 v2, float ss)
+{
+	return max(mix(dot(v1, v2), 0.32f, ss), 0);
+}
+
 //
 vec3 GetImplicitNormal(vec2 normal)
 {
