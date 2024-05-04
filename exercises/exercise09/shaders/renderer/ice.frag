@@ -43,16 +43,20 @@ vec2 GetDistances(float _time){
 
 void main()
 {
+
+	bool DebugMode = false;
+
 	SurfaceData data;
 	data.normal = SampleNormalMap(NormalTexture, TexCoord, normalize(WorldNormal), normalize(WorldTangent), normalize(WorldBitangent));
 	vec4 defaultTexture = texture(ColorTexture, TexCoord);
 	vec4 iceTexture = texture(IceColorTexture, TexCoord);
 	
-	float dist = GetDistance(WorldPosition, IceEpiCenter);
+	float dist = GetDistance(IceEpiCenter, WorldPosition);
 	vec2 iceGrowth = GetDistances(Time);
+	float ratio = 0;
 
-
-	if(dist <= iceGrowth.x)
+	vec3 DebugColorHelper = vec3(0);
+	if(dist >= iceGrowth.y)
 	{
 		//normal texture / no ice 
 		data.albedo = Color * defaultTexture.rgb;
@@ -63,17 +67,16 @@ void main()
 		data.roughness = arm.r;
 		data.metalness = arm.z;
 		data.subsurface = sra.r;
-
-	} else if (dist > iceGrowth.x && dist < iceGrowth.y)
+		DebugColorHelper.x = 1;
+	}
+	if (dist > iceGrowth.x && dist < iceGrowth.y)
 	{
 		//use mix with dist to get inbetween values of normal / ice texture
 		//y is max and x is minimum
-
+		ratio = invLerp(iceGrowth.x, iceGrowth.y, dist);
 		vec3 iceAlbedo = Color * iceTexture.rgb;
 		
 		vec3 defaultAlbedo = Color * defaultTexture.rgb;
-		
-		float ratio = invLerp(iceGrowth.x, iceGrowth.y, dist);
 
 		data.albedo = mix(defaultAlbedo, iceAlbedo, ratio);
 
@@ -83,8 +86,12 @@ void main()
 		data.roughness = mix(arm.y, sra.g, ratio);
 		data.metalness = mix(arm.z, 0.0000001, ratio);
 		data.subsurface = mix(0.0000001, sra.r, ratio);
-	} else //if ( dist >= iceGrowth.y)
+		DebugColorHelper.y = 1;
+	}
+	if ( dist <= iceGrowth.x)
 	{
+		ratio = 1;
+		//if x (which is the shorter distance) is bigger than the distance
 		//Fully ice
 		data.albedo = data.albedo = Color * iceTexture.rgb;
 		vec3 arm = texture(SpecularTexture, TexCoord).rgb;
@@ -94,15 +101,23 @@ void main()
 		data.roughness = sra.g;
 		data.metalness = arm.z;
 		data.subsurface = sra.r;
+		DebugColorHelper.z = 1;
 	}
 
 	vec3 position = WorldPosition;
 	vec3 viewDir = GetDirection(position, CameraPosition);
 	vec3 color = ComputeLighting(position, data, viewDir, true);
-	//color.b = color.b + Time;
+	color.b += ratio;
 	//FragColor = vec4(color.rgb, 1.0f);
 
 	//FragColor = vec4(color.rgb, defaultTexture.a);
-
-	FragColor = vec4(color.rgb, 0.9f);
+	
+	if(DebugMode)
+	{
+		FragColor = vec4(DebugColorHelper, 0.9f);
+	} else
+	{
+		FragColor = vec4(color.rgb, 0.9f);
+	}
+	
 }

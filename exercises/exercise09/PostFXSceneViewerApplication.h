@@ -8,6 +8,7 @@
 #include <ituGL/camera/CameraController.h>
 #include <ituGL/utils/DearImGui.h>
 #include <array>
+#include <ituGL/scene/SceneModel.h>
 
 class Texture2DObject;
 class TextureCubemapObject;
@@ -75,6 +76,9 @@ private:
     std::shared_ptr<Texture2DObject> m_sceneTexture;
     std::array<std::shared_ptr<FramebufferObject>, 2> m_tempFramebuffers;
     std::array<std::shared_ptr<Texture2DObject>, 2> m_tempTextures;
+
+    //Epicenter sphere Model
+    std::shared_ptr<SceneModel> epicenterModel;
 
     // Configuration values
     float m_exposure;

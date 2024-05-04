@@ -68,6 +68,9 @@ void PostFXSceneViewerApplication::Update()
 	// Update camera controller
 	m_cameraController.Update(GetMainWindow(), GetDeltaTime());
 
+	//DEBUGGIN TOOL: visualises the growth of the effect.
+	epicenterModel->GetTransform()->SetScale(glm::vec3(m_time/10));
+
 	// Add the scene nodes to the renderer
 	RendererSceneVisitor rendererSceneVisitor(m_renderer);
 	m_scene.AcceptVisitor(rendererSceneVisitor);
@@ -248,6 +251,8 @@ void PostFXSceneViewerApplication::InitializeMaterials()
 		ShaderProgram::Location worldMatrixLocation = shaderProgramPtr->GetUniformLocation("WorldMatrix");
 		ShaderProgram::Location viewProjMatrixLocation = shaderProgramPtr->GetUniformLocation("ViewProjMatrix");
 		ShaderProgram::Location timeLocation = shaderProgramPtr->GetUniformLocation("Time");
+		ShaderProgram::Location iceEpicenterLocation = shaderProgramPtr->GetUniformLocation("IceEpiCenter");
+
 
 		// Register shader with renderer
 		m_renderer.RegisterShaderProgram(shaderProgramPtr,
@@ -260,6 +265,8 @@ void PostFXSceneViewerApplication::InitializeMaterials()
 				}
 				shaderProgram.SetUniform(worldMatrixLocation, worldMatrix);
 				shaderProgram.SetUniform(timeLocation, m_time);
+				shaderProgram.SetUniform(iceEpicenterLocation, m_iceEpicenter);
+
 			},
 			m_renderer.GetDefaultUpdateLightsFunction(*shaderProgramPtr)
 		);
@@ -375,6 +382,15 @@ void PostFXSceneViewerApplication::InitializeModels()
 	std::shared_ptr<Model> alarmModel = forwardLoader.LoadShared("models/alarm_clock/alarm_clock.obj");
 	//std::shared_ptr<Model> libertyModel = forwardLoader.LoadShared("models/LibertyStatue/LibertyStatue.obj");
 
+	{
+		//DEBUGGING TOOL
+		auto center = glm::vec2(0);
+		std::string name("epicenterVisual ");
+		name += std::to_string(forwardIndex++);
+		epicenterModel = std::make_shared<SceneModel>(name, sphereModel);
+		epicenterModel->GetTransform()->SetTranslation(glm::vec3(center.x * sphereDistance.x, 0.0f, center.y * sphereDistance.y));
+		m_scene.AddSceneNode(epicenterModel);
+	}
 
 	auto center = glm::vec2(1);
 	{
