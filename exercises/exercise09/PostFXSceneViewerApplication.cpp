@@ -40,6 +40,8 @@ PostFXSceneViewerApplication::PostFXSceneViewerApplication()
 	, m_bloomRange(1.0f, 2.0f)
 	, m_bloomIntensity(1.0f)
 	, m_transparentCollection(0)
+	, m_time(0)
+	, m_iceEpicenter(0)
 {
 }
 
@@ -290,8 +292,6 @@ void PostFXSceneViewerApplication::InitializeModels()
 {
 	m_skyboxTexture = TextureCubemapLoader::LoadTextureShared("models/skybox/yoga_studio.hdr", TextureObject::FormatRGB, TextureObject::InternalFormatRGB16F);
 
-	//m_skyboxTexture = TextureCubemapLoader::LoadTextureShared("models/skybox/yoga_studio.hdr", TextureObject::FormatRGB, TextureObject::InternalFormatRGB16F);
-
 	m_frostTexture = Texture2DLoader::LoadTextureShared("models/ice/ground_0031_color_1k.jpg", TextureObject::FormatRGB, TextureObject::InternalFormatRGB16F);
 
 	m_frostCombinedTexture = Texture2DLoader::LoadTextureShared("models/ice/ground_0031_ao_rough_sub.png", TextureObject::FormatRGB, TextureObject::InternalFormatRGB16F);
@@ -305,18 +305,16 @@ void PostFXSceneViewerApplication::InitializeModels()
 	m_deferredMaterial->SetUniformValue("EnvironmentTexture", m_skyboxTexture);
 	m_deferredMaterial->SetUniformValue("EnvironmentMaxLod", maxLod);
 
-
 	m_forwardMaterial->SetUniformValue("EnvironmentTexture", m_skyboxTexture);
 	m_forwardMaterial->SetUniformValue("EnvironmentMaxLod", maxLod);
-
-
-	m_frozenMaterial->SetUniformValue("IceColorTexture", m_frostTexture);
-	m_frozenMaterial->SetUniformValue("IceCombinedTexture", m_frostCombinedTexture);
 
 	m_frozenMaterial->SetUniformValue("EnvironmentTexture", m_skyboxTexture);
 	m_frozenMaterial->SetUniformValue("EnvironmentMaxLod", maxLod);
 
-	//m_forwardMaterial->SetUniformValue("IceColorTexture", m_frostTexture);
+	m_frozenMaterial->SetUniformValue("IceColorTexture", m_frostTexture);
+	m_frozenMaterial->SetUniformValue("IceCombinedTexture", m_frostCombinedTexture);
+
+	m_frozenMaterial->SetUniformValue("IceEpicenter", m_iceEpicenter);
 
 	// Configure loader
 	ModelLoader loader(m_gbufferMaterial);
@@ -368,31 +366,76 @@ void PostFXSceneViewerApplication::InitializeModels()
 	forwardLoader.SetMaterialProperty(ModelLoader::MaterialProperty::NormalTexture, "NormalTexture");
 	forwardLoader.SetMaterialProperty(ModelLoader::MaterialProperty::SpecularTexture, "SpecularTexture");
 
-	int sphereIndex = 0;
+	int forwardIndex = 0;
 	glm::vec2 sphereDistance(3.0f, 3.0f);
 	std::shared_ptr<Model> sphereModel = forwardLoader.LoadShared("models/sphere/sphere.obj");
 
-	//std::shared_ptr<Model> forwardCannonModel = forwardLoader.LoadShared("models/cannon/cannon.obj");
-	//std::shared_ptr<Model> chestModel = forwardLoader.LoadShared("models/treasure_chest/treasure_chest.obj");
-	//std::shared_ptr<Model> alarmModel = forwardLoader.LoadShared("models/alarm_clock/alarm_clock.obj");
+	std::shared_ptr<Model> forwardCannonModel = forwardLoader.LoadShared("models/cannon/cannon.obj");
+	std::shared_ptr<Model> chestModel = forwardLoader.LoadShared("models/treasure_chest/treasure_chest.obj");
+	std::shared_ptr<Model> alarmModel = forwardLoader.LoadShared("models/alarm_clock/alarm_clock.obj");
 	//std::shared_ptr<Model> libertyModel = forwardLoader.LoadShared("models/LibertyStatue/LibertyStatue.obj");
 
 
+	auto center = glm::vec2(1);
+	{
+		std::string name("forwardModel ");
+		name += std::to_string(forwardIndex++);
+		std::shared_ptr<SceneModel> sceneModel = std::make_shared<SceneModel>(name, sphereModel);
+		sceneModel->GetTransform()->SetTranslation(glm::vec3(center.x * sphereDistance.x, 0.0f, center.y * sphereDistance.y));
+		m_scene.AddSceneNode(sceneModel);
+	}
+
+	center.x += 1;
+	{
+		std::string name("forwardModel ");
+		name += std::to_string(forwardIndex++);
+		std::shared_ptr<SceneModel> sceneModel = std::make_shared<SceneModel>(name, forwardCannonModel);
+		sceneModel->GetTransform()->SetTranslation(glm::vec3(center.x * sphereDistance.x, 0.0f, center.y * sphereDistance.y));
+		m_scene.AddSceneNode(sceneModel);
+	}
+
+	center.y += 1;
+	{
+		std::string name("forwardModel ");
+		name += std::to_string(forwardIndex++);
+		std::shared_ptr<SceneModel> sceneModel = std::make_shared<SceneModel>(name, chestModel);
+		sceneModel->GetTransform()->SetTranslation(glm::vec3(center.x * sphereDistance.x, 0.0f, center.y * sphereDistance.y));
+		m_scene.AddSceneNode(sceneModel);
+	}
+
+	center.x += 1;
+	{
+		std::string name("forwardModel ");
+		name += std::to_string(forwardIndex++);
+		std::shared_ptr<SceneModel> sceneModel = std::make_shared<SceneModel>(name, alarmModel);
+		sceneModel->GetTransform()->SetTranslation(glm::vec3(center.x * sphereDistance.x, 0.0f, center.y * sphereDistance.y));
+		m_scene.AddSceneNode(sceneModel);
+	}
+
+	center.y += 1;
+	{
+		std::string name("forwardModel ");
+		name += std::to_string(forwardIndex++);
+		std::shared_ptr<SceneModel> sceneModel = std::make_shared<SceneModel>(name, sphereModel);
+		sceneModel->GetTransform()->SetTranslation(glm::vec3(center.x * sphereDistance.x, 0.0f, center.y * sphereDistance.y));
+		m_scene.AddSceneNode(sceneModel);
+	}
 
 
 
 
-	for (int j = 0; j <= 1; ++j)
+	/*for (int j = 1; j <= 1; ++j)
 	{
 		for (int i = 0; i <= 1; ++i)
 		{
-			std::string name("alarm ");
-			name += std::to_string(sphereIndex++);
+
+			std::string name("forwardModel ");
+			name += std::to_string(forwardIndex++);
 			std::shared_ptr<SceneModel> sceneModel = std::make_shared<SceneModel>(name, sphereModel);
 			sceneModel->GetTransform()->SetTranslation(glm::vec3(i * sphereDistance.x, 0.0f, j * sphereDistance.y));
 			m_scene.AddSceneNode(sceneModel);
 		}
-	}
+	}*/
 }
 
 void PostFXSceneViewerApplication::InitializeFramebuffers()
@@ -586,11 +629,15 @@ void PostFXSceneViewerApplication::RenderGUI()
 
 	if (auto window = m_imGui.UseWindow("Post FX"))
 	{
-		if (m_composeMaterial)
+		if (m_frozenMaterial)
 		{
 			if (ImGui::SliderFloat("Time", &m_time, 0.f, 1000.0f))
 			{
 				m_frozenMaterial->SetUniformValue("Time", m_time);
+			}
+			if (ImGui::DragFloat3("Ice Epicenter", &m_iceEpicenter[0], 0.1f))
+			{
+				m_composeMaterial->SetUniformValue("IceEpicenter", m_iceEpicenter);
 			}
 		}
 		if (m_composeMaterial)

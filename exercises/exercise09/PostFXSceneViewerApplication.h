@@ -85,7 +85,8 @@ private:
     int m_blurIterations;
     glm::vec2 m_bloomRange;
     float m_bloomIntensity;
-    float m_time = 0;
+    float m_time;
+    glm::vec3 m_iceEpicenter;
 
     // Drawcall collections
     unsigned int m_transparentCollection;

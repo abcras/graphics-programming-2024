@@ -19,6 +19,16 @@ vec3 GetDirection(vec3 fromPosition, vec3 toPosition)
 	return normalize(toPosition - fromPosition);
 }
 
+float invLerp(float from, float to, float value){
+  return (value - from) / (to - from);
+}
+
+//
+float GetDistance(vec3 v1, vec3 v2)
+{
+	return length(v1 - v2);
+}
+
 //
 float ClampedDot(vec3 v1, vec3 v2)
 {
