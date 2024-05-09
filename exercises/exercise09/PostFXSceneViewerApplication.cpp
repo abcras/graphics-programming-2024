@@ -46,6 +46,7 @@ PostFXSceneViewerApplication::PostFXSceneViewerApplication()
 	, m_time(0)
 	, m_iceEpicenter(0)
 	, m_debugMode(false)
+	, m_iceSamplingScale(1)
 {
 }
 
@@ -261,6 +262,8 @@ void PostFXSceneViewerApplication::InitializeMaterials()
 		ShaderProgram::Location timeLocation = shaderProgramPtr->GetUniformLocation("Time");
 		ShaderProgram::Location iceEpicenterLocation = shaderProgramPtr->GetUniformLocation("IceEpiCenter");
 		ShaderProgram::Location debugModeLocation = shaderProgramPtr->GetUniformLocation("DebugMode");
+		
+		ShaderProgram::Location iceSamplingScaleLocation = shaderProgramPtr->GetUniformLocation("IceSamplingScale");
 
 		// Register shader with renderer
 		m_renderer.RegisterShaderProgram(shaderProgramPtr,
@@ -275,8 +278,7 @@ void PostFXSceneViewerApplication::InitializeMaterials()
 				shaderProgram.SetUniform(timeLocation, m_time);
 				shaderProgram.SetUniform(iceEpicenterLocation, m_iceEpicenter);
 				shaderProgram.SetUniform(debugModeLocation, m_debugMode ? 1 : 0);
-
-
+				shaderProgram.SetUniform(iceSamplingScaleLocation, m_iceSamplingScale);
 			},
 			m_renderer.GetDefaultUpdateLightsFunction(*shaderProgramPtr)
 		);
@@ -339,6 +341,9 @@ void PostFXSceneViewerApplication::InitializeModels()
 
 	m_frozenMaterial->SetUniformValue("IceEpicenter", m_iceEpicenter);
 	m_frozenMaterial->SetUniformValue("DebugMode", m_debugMode ? 1 : 0);
+
+	m_frozenMaterial->SetUniformValue("IceSamplingScale", m_iceSamplingScale);
+
 
 	m_frozenMaterial->SetUniformValue("PerlinNoiseTexture", m_perlinNoiseTexture);
 	m_frozenMaterial->SetUniformValue("VoronoiNoiseTexture", m_vornoiNoiseTexture);
@@ -675,9 +680,14 @@ void PostFXSceneViewerApplication::RenderGUI()
 			if (ImGui::DragFloat3("Ice Epicenter", &m_iceEpicenter[0], 0.1f))
 			{
 				m_frozenMaterial->SetUniformValue("IceEpicenter", m_iceEpicenter);
-				m_composeMaterial->SetUniformValue("IceEpicenter", m_iceEpicenter);
+				//m_composeMaterial->SetUniformValue("IceEpicenter", m_iceEpicenter);
+			}
+			if (ImGui::InputFloat2("Ice Samling Scale", &m_iceSamplingScale[0]))
+			{
+				m_frozenMaterial->SetUniformValue("IceSamplingScale", m_iceSamplingScale);
 
 			}
+
 			if (ImGui::Checkbox("DebugMode", &m_debugMode))
 			{
 				m_frozenMaterial->SetUniformValue("DebugMode", m_debugMode ? 1 : 0);

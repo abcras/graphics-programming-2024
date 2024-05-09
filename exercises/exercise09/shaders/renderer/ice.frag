@@ -24,6 +24,7 @@ uniform sampler2D IceCombinedTexture;
 
 uniform vec3 CameraPosition;
 uniform vec3 IceEpiCenter;
+uniform vec2 IceSamplingScale;
 
 uniform sampler2D PerlinNoiseTexture;
 uniform sampler2D VoronoiNoiseTexture;
@@ -82,22 +83,25 @@ void main()
 		DebugColorHelper.x = 1;
 		color = ComputeLighting(position, data, viewDir, true);
 	}
-	if (dist > iceGrowth.x/* && dist < iceGrowth.y*/)
+	if (dist < iceGrowth.y && dist > iceGrowth.x )
 	{
 		//use mix with dist to get inbetween values of normal / ice texture
 		//y is further from the center and x is closer to the center
 		ratio = invLerp(iceGrowth.y, iceGrowth.x, dist);
+
 		vec3 iceAlbedo = Color * iceTexture.rgb;
 		
 		vec3 defaultAlbedo = Color * defaultTexture.rgb;
 
-		data.normal = texture(VoronoiNoiseTexture, mix(defaultAlbedo, iceAlbedo, ratio).xy).xyz;
+		data.normal *= normalize(texture(VoronoiNoiseTexture, TexCoord * IceSamplingScale)).xyz;
+
+
 
 		vec3 arm = texture(SpecularTexture, TexCoord).rgb;
 		vec3 sra = texture(IceCombinedTexture, TexCoord).rgb;
 		data.ambientOcclusion = mix(arm.x, sra.b, ratio);
 		data.roughness = mix(arm.y, sra.g, ratio);
-		data.metalness = mix(arm.z, 0.0000001, ratio);
+		data.metalness = mix(arm.z, 0.002, ratio);
 		data.subsurface = mix(0.0000001, sra.r, ratio);
 		DebugColorHelper.x = mix (0,1,ratio);
 		DebugColorHelper.z = mix (0,1,1-ratio);
@@ -109,12 +113,31 @@ void main()
 		color = mix (color1, color2, ratio);
 
 	}
-	/*if ( dist <= iceGrowth.x)
+	if ( dist <= iceGrowth.x)
 	{
 		ratio = 1;
 		//if x (which is the shorter distance) is bigger than the distance
 		//Fully ice
-		data.albedo = data.albedo = Color * iceTexture.rgb;
+
+		vec3 iceAlbedo = Color * iceTexture.rgb;
+		
+		vec3 defaultAlbedo = Color * defaultTexture.rgb;
+
+		data.normal *= normalize(texture(VoronoiNoiseTexture, TexCoord * IceSamplingScale)).xyz;
+
+		vec3 arm = texture(SpecularTexture, TexCoord).rgb;
+		vec3 sra = texture(IceCombinedTexture, TexCoord).rgb;
+		data.ambientOcclusion = sra.b;
+		data.roughness = sra.g;
+		data.metalness = 0.002;
+		data.subsurface = sra.r;
+
+		data.albedo = iceAlbedo;
+		color = ComputeLighting(position, data, viewDir, true);
+		DebugColorHelper.z = 1;
+
+
+		/*data.albedo = data.albedo = Color * iceTexture.rgb;
 		vec3 arm = texture(SpecularTexture, TexCoord).rgb;
 		vec3 sra = texture(IceCombinedTexture, TexCoord).rgb;
 
@@ -122,10 +145,9 @@ void main()
 		data.roughness = sra.g;
 		data.metalness = arm.z;
 		data.subsurface = sra.r;
-		DebugColorHelper.z = 1;
-		color = ComputeLighting(position, data, viewDir, true);
+		color = ComputeLighting(position, data, viewDir, true);*/
 	
-	}*/
+	}
 	//color = ComputeLighting(position, data, viewDir, true);
 	color.b += ratio;
 
