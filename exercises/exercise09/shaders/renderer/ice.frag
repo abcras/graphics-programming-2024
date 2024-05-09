@@ -82,7 +82,7 @@ void main()
 		DebugColorHelper.x = 1;
 		color = ComputeLighting(position, data, viewDir, true);
 	}
-	if (dist > iceGrowth.x && dist < iceGrowth.y)
+	if (dist > iceGrowth.x/* && dist < iceGrowth.y*/)
 	{
 		//use mix with dist to get inbetween values of normal / ice texture
 		//y is further from the center and x is closer to the center
