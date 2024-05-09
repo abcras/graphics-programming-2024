@@ -27,6 +27,9 @@
 #include <ituGL/scene/ImGuiSceneVisitor.h>
 #include <imgui.h>
 
+#define STB_PERLIN_IMPLEMENTATION
+#include <stb_perlin.h>
+
 PostFXSceneViewerApplication::PostFXSceneViewerApplication()
 	: Application(1024, 1024, "Post FX Scene Viewer demo")
 	, m_renderer(GetDevice())
@@ -42,6 +45,7 @@ PostFXSceneViewerApplication::PostFXSceneViewerApplication()
 	, m_transparentCollection(0)
 	, m_time(0)
 	, m_iceEpicenter(0)
+	, m_debugMode(false)
 {
 }
 
@@ -69,7 +73,11 @@ void PostFXSceneViewerApplication::Update()
 	m_cameraController.Update(GetMainWindow(), GetDeltaTime());
 
 	//DEBUGGIN TOOL: visualises the growth of the effect.
-	epicenterModel->GetTransform()->SetScale(glm::vec3(m_time/10));
+	if (m_debugMode)
+	{
+		epicenterModel->GetTransform()->SetScale(glm::vec3(m_time / 10));
+		epicenterModel->GetTransform()->SetTranslation(m_iceEpicenter);
+	}
 
 	// Add the scene nodes to the renderer
 	RendererSceneVisitor rendererSceneVisitor(m_renderer);
@@ -252,7 +260,7 @@ void PostFXSceneViewerApplication::InitializeMaterials()
 		ShaderProgram::Location viewProjMatrixLocation = shaderProgramPtr->GetUniformLocation("ViewProjMatrix");
 		ShaderProgram::Location timeLocation = shaderProgramPtr->GetUniformLocation("Time");
 		ShaderProgram::Location iceEpicenterLocation = shaderProgramPtr->GetUniformLocation("IceEpiCenter");
-
+		ShaderProgram::Location debugModeLocation = shaderProgramPtr->GetUniformLocation("DebugMode");
 
 		// Register shader with renderer
 		m_renderer.RegisterShaderProgram(shaderProgramPtr,
@@ -266,6 +274,8 @@ void PostFXSceneViewerApplication::InitializeMaterials()
 				shaderProgram.SetUniform(worldMatrixLocation, worldMatrix);
 				shaderProgram.SetUniform(timeLocation, m_time);
 				shaderProgram.SetUniform(iceEpicenterLocation, m_iceEpicenter);
+				shaderProgram.SetUniform(debugModeLocation, m_debugMode ? 1 : 0);
+
 
 			},
 			m_renderer.GetDefaultUpdateLightsFunction(*shaderProgramPtr)
@@ -297,11 +307,17 @@ void PostFXSceneViewerApplication::InitializeMaterials()
 
 void PostFXSceneViewerApplication::InitializeModels()
 {
-	m_skyboxTexture = TextureCubemapLoader::LoadTextureShared("models/skybox/yoga_studio.hdr", TextureObject::FormatRGB, TextureObject::InternalFormatRGB16F);
+	//m_skyboxTexture = TextureCubemapLoader::LoadTextureShared("models/skybox/yoga_studio.hdr", TextureObject::FormatRGB, TextureObject::InternalFormatRGB16F);
+	m_skyboxTexture = TextureCubemapLoader::LoadTextureShared("models/skybox/lonely_road_afternoon_puresky_1k.png", TextureObject::FormatRGB, TextureObject::InternalFormatRGB16F);
 
 	m_frostTexture = Texture2DLoader::LoadTextureShared("models/ice/ground_0031_color_1k.jpg", TextureObject::FormatRGB, TextureObject::InternalFormatRGB16F);
 
 	m_frostCombinedTexture = Texture2DLoader::LoadTextureShared("models/ice/ground_0031_ao_rough_sub.png", TextureObject::FormatRGB, TextureObject::InternalFormatRGB16F);
+
+	m_perlinNoiseTexture = CreateHeightMap(1024, 1024, glm::ivec2(0, 0));
+
+	m_vornoiNoiseTexture = Texture2DLoader::LoadTextureShared("models/ice/ColorfulCells.png", TextureObject::FormatRGB, TextureObject::InternalFormatRGB16F);
+
 
 	m_skyboxTexture->Bind();
 	float maxLod;
@@ -322,6 +338,11 @@ void PostFXSceneViewerApplication::InitializeModels()
 	m_frozenMaterial->SetUniformValue("IceCombinedTexture", m_frostCombinedTexture);
 
 	m_frozenMaterial->SetUniformValue("IceEpicenter", m_iceEpicenter);
+	m_frozenMaterial->SetUniformValue("DebugMode", m_debugMode ? 1 : 0);
+
+	m_frozenMaterial->SetUniformValue("PerlinNoiseTexture", m_perlinNoiseTexture);
+	m_frozenMaterial->SetUniformValue("VoronoiNoiseTexture", m_vornoiNoiseTexture);
+
 
 	// Configure loader
 	ModelLoader loader(m_gbufferMaterial);
@@ -653,7 +674,13 @@ void PostFXSceneViewerApplication::RenderGUI()
 			}
 			if (ImGui::DragFloat3("Ice Epicenter", &m_iceEpicenter[0], 0.1f))
 			{
+				m_frozenMaterial->SetUniformValue("IceEpicenter", m_iceEpicenter);
 				m_composeMaterial->SetUniformValue("IceEpicenter", m_iceEpicenter);
+
+			}
+			if (ImGui::Checkbox("DebugMode", &m_debugMode))
+			{
+				m_frozenMaterial->SetUniformValue("DebugMode", m_debugMode ? 1 : 0);
 			}
 		}
 		if (m_composeMaterial)
@@ -706,4 +733,27 @@ bool PostFXSceneViewerApplication::IsOpaque(const Renderer::DrawcallInfo& drawca
 bool PostFXSceneViewerApplication::IsTransparent(const Renderer::DrawcallInfo& drawcallInfo)
 {
 	return drawcallInfo.GetMaterial().HasBlend();
+}
+
+
+std::shared_ptr<Texture2DObject> PostFXSceneViewerApplication::CreateHeightMap(unsigned int width, unsigned int height, glm::ivec2 coords)
+{
+	std::shared_ptr<Texture2DObject> heightmap = std::make_shared<Texture2DObject>();
+
+	std::vector<float> pixels(height * width);
+	for (unsigned int j = 0; j < height; ++j)
+	{
+		for (unsigned int i = 0; i < width; ++i)
+		{
+			float x = static_cast<float>(i) / (width - 1) + coords.x;
+			float y = static_cast<float>(j) / (height - 1) + coords.y;
+			pixels[j * width + i] = stb_perlin_fbm_noise3(x, y, 0.0f, 1.9f, 0.5f, 8) * 0.5f;
+		}
+	}
+
+	heightmap->Bind();
+	heightmap->SetImage<float>(0, width, height, TextureObject::FormatR, TextureObject::InternalFormatR16F, pixels);
+	heightmap->GenerateMipmap();
+
+	return heightmap;
 }

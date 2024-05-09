@@ -42,6 +42,8 @@ private:
     static bool IsOpaque(const Renderer::DrawcallInfo& drawcallInfo);
     static bool IsTransparent(const Renderer::DrawcallInfo& drawcallInfo);
 
+    std::shared_ptr<Texture2DObject> CreateHeightMap(unsigned int width, unsigned int height, glm::ivec2 coords);
+
 private:
     // Helper object for debug GUI
     DearImGui m_imGui;
@@ -76,6 +78,9 @@ private:
     std::shared_ptr<Texture2DObject> m_sceneTexture;
     std::array<std::shared_ptr<FramebufferObject>, 2> m_tempFramebuffers;
     std::array<std::shared_ptr<Texture2DObject>, 2> m_tempTextures;
+    std::shared_ptr<Texture2DObject> m_perlinNoiseTexture;
+    std::shared_ptr<Texture2DObject> m_vornoiNoiseTexture;
+
 
     //Epicenter sphere Model
     std::shared_ptr<SceneModel> epicenterModel;
@@ -91,6 +96,7 @@ private:
     float m_bloomIntensity;
     float m_time;
     glm::vec3 m_iceEpicenter;
+    bool m_debugMode;
 
     // Drawcall collections
     unsigned int m_transparentCollection;
