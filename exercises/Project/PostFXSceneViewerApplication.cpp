@@ -47,6 +47,7 @@ PostFXSceneViewerApplication::PostFXSceneViewerApplication()
 	, m_iceEpicenter(0)
 	, m_debugMode(false)
 	, m_iceSamplingScale(1)
+	, m_timeScale(1)
 {
 }
 
@@ -71,7 +72,7 @@ void PostFXSceneViewerApplication::Update()
 	Application::Update();
 
 
-	m_time += GetDeltaTime();
+	m_time += GetDeltaTime() * m_timeScale;
 	// Update camera controller
 	m_cameraController.Update(GetMainWindow(), GetDeltaTime());
 
@@ -678,6 +679,10 @@ void PostFXSceneViewerApplication::RenderGUI()
 			if (ImGui::SliderFloat("Time", &m_time, 0.f, 1000.0f))
 			{
 				m_frozenMaterial->SetUniformValue("Time", m_time);
+			}
+			if (ImGui::DragFloat("TimeScale", &m_timeScale, 0.1f, 1.f, 10.0f))
+			{
+				//m_frozenMaterial->SetUniformValue("Time", m_timeScale);
 			}
 			if (ImGui::DragFloat3("Ice Epicenter", &m_iceEpicenter[0], 0.1f))
 			{

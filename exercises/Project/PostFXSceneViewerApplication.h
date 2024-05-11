@@ -98,6 +98,7 @@ private:
     glm::vec3 m_iceEpicenter;
     bool m_debugMode;
     glm::vec2 m_iceSamplingScale;
+    float m_timeScale;
 
     // Drawcall collections
     unsigned int m_transparentCollection;

@@ -80,7 +80,7 @@ void main()
 		data.roughness = arm.r;
 		data.metalness = arm.z;
 		data.subsurface = sra.r;
-		DebugColorHelper.x = 1;
+		DebugColorHelper.r = 1;
 		color = ComputeLighting(position, data, viewDir, true);
 	}
 	if (dist < iceGrowth.y && dist > iceGrowth.x )
@@ -103,8 +103,8 @@ void main()
 		data.roughness = mix(arm.y, sra.g, ratio);
 		data.metalness = mix(arm.z, 0.002, ratio);
 		data.subsurface = mix(0.0000001, sra.r, ratio);
-		DebugColorHelper.x = mix (0,1,ratio);
-		DebugColorHelper.z = mix (0,1,1-ratio);
+		DebugColorHelper.r = mix (0,1,1-ratio);
+		DebugColorHelper.b = mix (0,1,ratio);
 
 		data.albedo = defaultAlbedo;
 		vec3 color1 = ComputeLighting(position, data, viewDir, true);
@@ -134,7 +134,7 @@ void main()
 
 		data.albedo = iceAlbedo;
 		color = ComputeLighting(position, data, viewDir, true);
-		DebugColorHelper.z = 1;
+		DebugColorHelper.b = 1;
 
 
 		/*data.albedo = data.albedo = Color * iceTexture.rgb;
@@ -151,7 +151,7 @@ void main()
 	//color = ComputeLighting(position, data, viewDir, true);
 	color.b += ratio;
 
-	vec3 fresnel = FresnelSchlick(GetReflectance(data), viewDir, data.normal);
+	vec3 fresnel = mix(vec3(0), FresnelSchlick(GetReflectance(data), viewDir, data.normal), ratio);
 
 	FragColor = vec4(mix(color.rgb + fresnel, DebugColorHelper, float(DebugMode)), 0.9f);
 }
