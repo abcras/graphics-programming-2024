@@ -42,7 +42,8 @@ vec3 ComputeLight(SurfaceData data, vec3 viewDir, vec3 position)
 	vec3 lightDir = ComputeLightDirection(position);
 
 	vec3 diffuse = ComputeDiffuseLighting(data, lightDir);
-	vec3 specular = ComputeSpecularLighting(data, lightDir, viewDir);
+	vec3 specular = ComputeSpecularLightingWithSS(data, lightDir, viewDir);
+	//vec3 specular = ComputeSpecularLighting(data, lightDir, viewDir);
 	vec3 light = CombineLighting(diffuse, specular, data, lightDir, viewDir);
 
 	float attenuation = ComputeAttenuation(position, lightDir);
