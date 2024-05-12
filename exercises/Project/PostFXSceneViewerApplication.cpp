@@ -35,18 +35,18 @@ PostFXSceneViewerApplication::PostFXSceneViewerApplication()
 	, m_renderer(GetDevice())
 	, m_sceneFramebuffer(std::make_shared<FramebufferObject>())
 	, m_exposure(1.0f)
-	, m_contrast(1.0f)
+	, m_contrast(1.1f)
 	, m_hueShift(0.0f)
 	, m_saturation(1.0f)
 	, m_colorFilter(1.0f)
 	, m_blurIterations(1)
 	, m_bloomRange(1.0f, 2.0f)
-	, m_bloomIntensity(1.0f)
+	, m_bloomIntensity(2.0f)
 	, m_transparentCollection(0)
 	, m_time(0)
 	, m_iceEpicenter(0)
 	, m_debugMode(false)
-	, m_iceSamplingScale(1)
+	, m_iceSamplingScale(1,6)
 	, m_timeScale(1)
 {
 }
@@ -55,7 +55,7 @@ void PostFXSceneViewerApplication::Initialize()
 {
 	Application::Initialize();
 
-	m_iceSamplingScale.y = 6.f;
+	//m_iceSamplingScale.y = 6.f;
 
 	// Initialize DearImGUI
 	m_imGui.Initialize(GetMainWindow());
@@ -375,8 +375,8 @@ void PostFXSceneViewerApplication::InitializeModels()
 	loader.SetMaterialProperty(ModelLoader::MaterialProperty::SpecularTexture, "SpecularTexture");
 
 	// Load models
-	std::shared_ptr<Model> cannonModel = loader.LoadShared("models/cannon/cannon.obj");
-	m_scene.AddSceneNode(std::make_shared<SceneModel>("cannon", cannonModel));
+	//std::shared_ptr<Model> cannonModel = loader.LoadShared("models/cannon/cannon.obj");
+	//m_scene.AddSceneNode(std::make_shared<SceneModel>("cannon", cannonModel));
 
 	// Configure loader
 	//ModelLoader forwardLoader(m_forwardMaterial);
@@ -430,7 +430,7 @@ void PostFXSceneViewerApplication::InitializeModels()
 		m_scene.AddSceneNode(sceneModel);
 	}
 
-	center.x += 1;
+	center = glm::vec2(-1);
 	{
 		std::string name("forwardModel ");
 		name += std::to_string(forwardIndex++);
@@ -439,7 +439,7 @@ void PostFXSceneViewerApplication::InitializeModels()
 		m_scene.AddSceneNode(sceneModel);
 	}
 
-	center.y += 1;
+	center = glm::vec2(-1, 0);
 	{
 		std::string name("forwardModel ");
 		name += std::to_string(forwardIndex++);
@@ -448,16 +448,18 @@ void PostFXSceneViewerApplication::InitializeModels()
 		m_scene.AddSceneNode(sceneModel);
 	}
 
-	center.x += 1;
+	center = glm::vec2(0, -1);
 	{
 		std::string name("forwardModel ");
 		name += std::to_string(forwardIndex++);
 		std::shared_ptr<SceneModel> sceneModel = std::make_shared<SceneModel>(name, alarmModel);
 		sceneModel->GetTransform()->SetTranslation(glm::vec3(center.x * sphereDistance.x, 0.0f, center.y * sphereDistance.y));
+		sceneModel->GetTransform()->SetScale(glm::vec3(4,4,4));
+
 		m_scene.AddSceneNode(sceneModel);
 	}
 
-	center.y += 1;
+	center = glm::vec2(1, 0);
 	{
 		std::string name("forwardModel ");
 		name += std::to_string(forwardIndex++);
@@ -680,7 +682,7 @@ void PostFXSceneViewerApplication::RenderGUI()
 			{
 				m_frozenMaterial->SetUniformValue("Time", m_time);
 			}
-			if (ImGui::DragFloat("TimeScale", &m_timeScale, 0.1f, 1.f, 10.0f))
+			if (ImGui::DragFloat("TimeScale", &m_timeScale, 0.1f, -10.f, 10.0f))
 			{
 				//m_frozenMaterial->SetUniformValue("Time", m_timeScale);
 			}
@@ -689,7 +691,7 @@ void PostFXSceneViewerApplication::RenderGUI()
 				m_frozenMaterial->SetUniformValue("IceEpicenter", m_iceEpicenter);
 				//m_composeMaterial->SetUniformValue("IceEpicenter", m_iceEpicenter);
 			}
-			if (ImGui::InputFloat2("Ice Samling Scale", &m_iceSamplingScale[0]))
+			if (ImGui::InputFloat2("Ice Sampling Scale", &m_iceSamplingScale[0]))
 			{
 				m_frozenMaterial->SetUniformValue("IceSamplingScale", m_iceSamplingScale);
 
