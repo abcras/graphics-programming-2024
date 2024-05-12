@@ -409,6 +409,8 @@ void PostFXSceneViewerApplication::InitializeModels()
 	std::shared_ptr<Model> forwardCannonModel = forwardLoader.LoadShared("models/cannon/cannon.obj");
 	std::shared_ptr<Model> chestModel = forwardLoader.LoadShared("models/treasure_chest/treasure_chest.obj");
 	std::shared_ptr<Model> alarmModel = forwardLoader.LoadShared("models/alarm_clock/alarm_clock.obj");
+	std::shared_ptr<Model> catModel = forwardLoader.LoadShared("models/cat/concrete_cat_statue_1k.obj");
+
 	//std::shared_ptr<Model> libertyModel = forwardLoader.LoadShared("models/LibertyStatue/LibertyStatue.obj");
 
 	{
@@ -452,7 +454,7 @@ void PostFXSceneViewerApplication::InitializeModels()
 	{
 		std::string name("forwardModel ");
 		name += std::to_string(forwardIndex++);
-		std::shared_ptr<SceneModel> sceneModel = std::make_shared<SceneModel>(name, alarmModel);
+		std::shared_ptr<SceneModel> sceneModel = std::make_shared<SceneModel>(name, catModel);
 		sceneModel->GetTransform()->SetTranslation(glm::vec3(center.x * sphereDistance.x, 0.0f, center.y * sphereDistance.y));
 		sceneModel->GetTransform()->SetScale(glm::vec3(4,4,4));
 
