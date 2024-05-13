@@ -46,7 +46,7 @@ PostFXSceneViewerApplication::PostFXSceneViewerApplication()
 	, m_time(0)
 	, m_iceEpicenter(0)
 	, m_debugMode(false)
-	, m_iceSamplingScale(1,6)
+	, m_iceSamplingScale(1, 6)
 	, m_timeScale(1)
 {
 }
@@ -265,7 +265,7 @@ void PostFXSceneViewerApplication::InitializeMaterials()
 		ShaderProgram::Location timeLocation = shaderProgramPtr->GetUniformLocation("Time");
 		ShaderProgram::Location iceEpicenterLocation = shaderProgramPtr->GetUniformLocation("IceEpiCenter");
 		ShaderProgram::Location debugModeLocation = shaderProgramPtr->GetUniformLocation("DebugMode");
-		
+
 		ShaderProgram::Location iceSamplingScaleLocation = shaderProgramPtr->GetUniformLocation("IceSamplingScale");
 
 		// Register shader with renderer
@@ -375,8 +375,13 @@ void PostFXSceneViewerApplication::InitializeModels()
 	loader.SetMaterialProperty(ModelLoader::MaterialProperty::SpecularTexture, "SpecularTexture");
 
 	// Load models
-	//std::shared_ptr<Model> cannonModel = loader.LoadShared("models/cannon/cannon.obj");
-	//m_scene.AddSceneNode(std::make_shared<SceneModel>("cannon", cannonModel));
+	/*{
+		std::shared_ptr<Model> cannonModel = loader.LoadShared("models/cannon/cannon.obj");
+		std::shared_ptr<SceneModel> sceneModel = std::make_shared<SceneModel>("cannon", cannonModel);
+		sceneModel->GetTransform()->SetTranslation(glm::vec3(-3.f, 0.01f, -3.f));
+		sceneModel->GetTransform()->SetScale(glm::vec3(0.99f));
+		m_scene.AddSceneNode(sceneModel);
+	}*/
 
 	// Configure loader
 	//ModelLoader forwardLoader(m_forwardMaterial);
@@ -456,7 +461,7 @@ void PostFXSceneViewerApplication::InitializeModels()
 		name += std::to_string(forwardIndex++);
 		std::shared_ptr<SceneModel> sceneModel = std::make_shared<SceneModel>(name, catModel);
 		sceneModel->GetTransform()->SetTranslation(glm::vec3(center.x * sphereDistance.x, 0.0f, center.y * sphereDistance.y));
-		sceneModel->GetTransform()->SetScale(glm::vec3(4,4,4));
+		sceneModel->GetTransform()->SetScale(glm::vec3(4, 4, 4));
 
 		m_scene.AddSceneNode(sceneModel);
 	}
