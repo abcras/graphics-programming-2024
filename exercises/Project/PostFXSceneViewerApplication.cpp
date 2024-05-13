@@ -31,7 +31,7 @@
 #include <stb_perlin.h>
 
 PostFXSceneViewerApplication::PostFXSceneViewerApplication()
-	: Application(1024, 1024, "Post FX Scene Viewer demo")
+	: Application(1024, 1024, "Post FX Scene Exam Project version")
 	, m_renderer(GetDevice())
 	, m_sceneFramebuffer(std::make_shared<FramebufferObject>())
 	, m_exposure(1.0f)

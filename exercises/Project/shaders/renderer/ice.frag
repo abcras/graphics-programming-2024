@@ -145,5 +145,5 @@ void main()
 
 	vec3 fresnel = mix(vec3(0), FresnelSchlick(GetReflectance(data), viewDir, data.normal), ratio);
 
-	FragColor = vec4(mix(color.rgb + fresnel, DebugColorHelper, float(DebugMode)), 0.8f);
+	FragColor = vec4(mix(color.rgb + fresnel, DebugColorHelper, float(DebugMode)), mix(0.95f, 0.8f, ratio));
 }
