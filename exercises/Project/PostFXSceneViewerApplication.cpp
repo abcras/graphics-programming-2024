@@ -319,6 +319,7 @@ void PostFXSceneViewerApplication::InitializeModels()
 
 	m_frostCombinedTexture = Texture2DLoader::LoadTextureShared("models/ice/ground_0031_ao_rough_sub.png", TextureObject::FormatRGB, TextureObject::InternalFormatRGB16F);
 
+	//hardcoded value that matches the screen size
 	m_perlinNoiseTexture = CreateHeightMap(1024, 1024, glm::ivec2(0, 0));
 
 	m_vornoiNoiseTexture = Texture2DLoader::LoadTextureShared("models/ice/ColorfulCells.png", TextureObject::FormatRGB, TextureObject::InternalFormatRGB16F);
@@ -379,7 +380,7 @@ void PostFXSceneViewerApplication::InitializeModels()
 		std::shared_ptr<Model> cannonModel = loader.LoadShared("models/cannon/cannon.obj");
 		std::shared_ptr<SceneModel> sceneModel = std::make_shared<SceneModel>("cannon", cannonModel);
 		sceneModel->GetTransform()->SetTranslation(glm::vec3(-3.f, 0.01f, -3.f));
-		sceneModel->GetTransform()->SetScale(glm::vec3(0.99f));
+		sceneModel->GetTransform()->SetScale(glm::vec3(1.f));
 		m_scene.AddSceneNode(sceneModel);
 	}*/
 
