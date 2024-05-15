@@ -43,6 +43,7 @@ PostFXSceneViewerApplication::PostFXSceneViewerApplication()
 	, m_bloomRange(1.0f, 2.0f)
 	, m_bloomIntensity(2.0f)
 	, m_transparentCollection(0)
+	//EXAM changes
 	, m_time(0)
 	, m_iceEpicenter(0)
 	, m_debugMode(false)
@@ -71,7 +72,8 @@ void PostFXSceneViewerApplication::Update()
 {
 	Application::Update();
 
-
+	//EXAM changes
+	//Increasing time and modifying it by timescale
 	m_time += GetDeltaTime() * m_timeScale;
 	// Update camera controller
 	m_cameraController.Update(GetMainWindow(), GetDeltaTime());
@@ -258,6 +260,7 @@ void PostFXSceneViewerApplication::InitializeMaterials()
 		std::shared_ptr<ShaderProgram> shaderProgramPtr = std::make_shared<ShaderProgram>();
 		shaderProgramPtr->Build(vertexShader, fragmentShader);
 
+		//Exam Changes
 		// Get transform related uniform locations
 		ShaderProgram::Location cameraPositionLocation = shaderProgramPtr->GetUniformLocation("CameraPosition");
 		ShaderProgram::Location worldMatrixLocation = shaderProgramPtr->GetUniformLocation("WorldMatrix");
@@ -268,6 +271,7 @@ void PostFXSceneViewerApplication::InitializeMaterials()
 
 		ShaderProgram::Location iceSamplingScaleLocation = shaderProgramPtr->GetUniformLocation("IceSamplingScale");
 
+		//EXAM changes
 		// Register shader with renderer
 		m_renderer.RegisterShaderProgram(shaderProgramPtr,
 			[=](const ShaderProgram& shaderProgram, const glm::mat4& worldMatrix, const Camera& camera, bool cameraChanged)
@@ -303,6 +307,7 @@ void PostFXSceneViewerApplication::InitializeMaterials()
 		m_forwardMaterial->SetBlendParams(Material::BlendParam::SourceAlpha, Material::BlendParam::OneMinusSourceAlpha);
 		m_forwardMaterial->SetDepthWrite(false);
 
+		//EXAM changes
 		m_frozenMaterial = std::make_shared<Material>(shaderProgramPtr, filteredUniforms);
 		m_frozenMaterial->SetBlendEquation(Material::BlendEquation::Add);
 		m_frozenMaterial->SetBlendParams(Material::BlendParam::SourceAlpha, Material::BlendParam::OneMinusSourceAlpha);
@@ -312,6 +317,7 @@ void PostFXSceneViewerApplication::InitializeMaterials()
 
 void PostFXSceneViewerApplication::InitializeModels()
 {
+	//EXAM changes
 	//m_skyboxTexture = TextureCubemapLoader::LoadTextureShared("models/skybox/yoga_studio.hdr", TextureObject::FormatRGB, TextureObject::InternalFormatRGB16F);
 	m_skyboxTexture = TextureCubemapLoader::LoadTextureShared("models/skybox/lonely_road_afternoon_puresky_1k.png", TextureObject::FormatRGB, TextureObject::InternalFormatRGB16F);
 
@@ -340,6 +346,7 @@ void PostFXSceneViewerApplication::InitializeModels()
 	m_frozenMaterial->SetUniformValue("EnvironmentTexture", m_skyboxTexture);
 	m_frozenMaterial->SetUniformValue("EnvironmentMaxLod", maxLod);
 
+	//EXAM changes
 	m_frozenMaterial->SetUniformValue("IceColorTexture", m_frostTexture);
 	m_frozenMaterial->SetUniformValue("IceCombinedTexture", m_frostCombinedTexture);
 
@@ -375,6 +382,8 @@ void PostFXSceneViewerApplication::InitializeModels()
 	loader.SetMaterialProperty(ModelLoader::MaterialProperty::NormalTexture, "NormalTexture");
 	loader.SetMaterialProperty(ModelLoader::MaterialProperty::SpecularTexture, "SpecularTexture");
 
+	//EXAM - I tried implementing having a forward pass and defered pass model ontop of each other
+	//but without more shader control it z-fighted a lot
 	// Load models
 	/*{
 		std::shared_ptr<Model> cannonModel = loader.LoadShared("models/cannon/cannon.obj");
@@ -408,6 +417,7 @@ void PostFXSceneViewerApplication::InitializeModels()
 	forwardLoader.SetMaterialProperty(ModelLoader::MaterialProperty::NormalTexture, "NormalTexture");
 	forwardLoader.SetMaterialProperty(ModelLoader::MaterialProperty::SpecularTexture, "SpecularTexture");
 
+	//EXAM changes
 	int forwardIndex = 0;
 	glm::vec2 sphereDistance(3.0f, 3.0f);
 	std::shared_ptr<Model> sphereModel = forwardLoader.LoadShared("models/sphere/sphere.obj");
@@ -475,22 +485,6 @@ void PostFXSceneViewerApplication::InitializeModels()
 		sceneModel->GetTransform()->SetTranslation(glm::vec3(center.x * sphereDistance.x, 0.0f, center.y * sphereDistance.y));
 		m_scene.AddSceneNode(sceneModel);
 	}
-
-
-
-
-	/*for (int j = 1; j <= 1; ++j)
-	{
-		for (int i = 0; i <= 1; ++i)
-		{
-
-			std::string name("forwardModel ");
-			name += std::to_string(forwardIndex++);
-			std::shared_ptr<SceneModel> sceneModel = std::make_shared<SceneModel>(name, sphereModel);
-			sceneModel->GetTransform()->SetTranslation(glm::vec3(i * sphereDistance.x, 0.0f, j * sphereDistance.y));
-			m_scene.AddSceneNode(sceneModel);
-		}
-	}*/
 }
 
 void PostFXSceneViewerApplication::InitializeFramebuffers()
@@ -567,22 +561,6 @@ void PostFXSceneViewerApplication::InitializeRenderer()
 
 	// Skybox pass
 	m_renderer.AddRenderPass(std::make_unique<SkyboxRenderPass>(m_skyboxTexture));
-
-
-
-	//render ice
-	//m_frozenMaterial->SetDepthTestFunction(Material::TestFunction::Equal);
-
-	//std::unique_ptr<GBufferRenderPass> gbufferRenderPass(std::make_unique<GBufferRenderPass>(width, height));
-
-	//// Set the g-buffer textures as properties of the deferred material
-	//m_frozenMaterial->SetUniformValue("DepthTexture", gbufferRenderPass->GetDepthTexture());
-	//m_frozenMaterial->SetUniformValue("AlbedoTexture", gbufferRenderPass->GetAlbedoTexture());
-	//m_frozenMaterial->SetUniformValue("NormalTexture", gbufferRenderPass->GetNormalTexture());
-	//m_frozenMaterial->SetUniformValue("OthersTexture", gbufferRenderPass->GetOthersTexture());
-	//m_frozenMaterial->
-	//m_frozenMaterial->
-	//m_renderer.AddRenderPass(std::make_unique<DeferredRenderPass>(m_frozenMaterial, m_sceneFramebuffer));
 
 	m_renderer.AddRenderPass(std::make_unique<ForwardRenderPass>(m_transparentCollection));
 
@@ -684,6 +662,7 @@ void PostFXSceneViewerApplication::RenderGUI()
 
 	if (auto window = m_imGui.UseWindow("Post FX"))
 	{
+		//EXAM changes
 		if (m_frozenMaterial)
 		{
 			if (ImGui::SliderFloat("Time", &m_time, 0.f, 1000.0f))
@@ -763,6 +742,7 @@ bool PostFXSceneViewerApplication::IsTransparent(const Renderer::DrawcallInfo& d
 }
 
 
+//EXAM changes
 std::shared_ptr<Texture2DObject> PostFXSceneViewerApplication::CreateHeightMap(unsigned int width, unsigned int height, glm::ivec2 coords)
 {
 	std::shared_ptr<Texture2DObject> heightmap = std::make_shared<Texture2DObject>();
